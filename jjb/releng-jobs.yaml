@@ -1,4 +1,4 @@
-- project:
+- projectsss
     name: builder-jobs
     jobs:
         - 'builder-verify-jjb'
@@ -24,6 +24,18 @@
             project: '{project}'
         - gerrit-parameter:
             branch: 'master'
+        - string:
+            name: GIT_BASE
+            default: https://github.com/Justin-chi/$PROJECT
+            description: "POD1 has some issues with cloning using https so that's why GIT_BASE is overriden here again."
+        - string:
+            name: GERRIT_BRANCH
+            default: origin/master
+            description: "Branch to build, deploy and test."
+        - string:
+            name: GERRIT_REFSPEC
+            default: refs/heads/master
+            description: "Refspec to retrieve."
 
     scm:
         - gerrit-trigger-scm:
@@ -121,3 +133,13 @@
                 git pull
                 jenkins-jobs update --delete-old jjb/
 
+########################
+# parameter macros
+########################
+- parameter:
+    name: releng-parameter
+    parameters:
+        - string:
+            name: GIT_BASE
+            default: https://gerrit.opnfv.org/gerrit/$PROJECT
+            description: "Used for overriding the GIT URL coming from Global Jenkins configuration in case if the stuff is done on none-LF HW."
