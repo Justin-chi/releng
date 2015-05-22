@@ -26,12 +26,8 @@
             branch: 'master'
         - string:
             name: GIT_BASE
-            default: https://github.com/Justin-chi/$PROJECT
+            default: https://github.com/Justin-chi/
             description: "POD1 has some issues with cloning using https so that's why GIT_BASE is overriden here again."
-        - string:
-            name: GERRIT_REFSPEC
-            default: refs/heads/master
-            description: "Refspec to retrieve."
 
     scm:
         - git-scm :
