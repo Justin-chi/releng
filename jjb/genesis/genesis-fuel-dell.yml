@@ -22,7 +22,7 @@
     name: 'genesis-{installer}-daily-dell-{stream}'
 
     project-type: freestyle
-
+    disabled: true
     node: dell-build
 
     parameters:

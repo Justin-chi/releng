@@ -95,7 +95,7 @@
     # This job's purpose is to update all the JJB
 
     project-type: freestyle
-
+    disabled: true
     node: compass-build-deploy-03
 
     logrotate:
@@ -151,7 +151,7 @@
     name: 'genesis-compass-daily-{stream}'
 
     project-type: freestyle
-
+    disabled: true
     node: compass-build-deploy-03
 
     parameters:

@@ -28,7 +28,7 @@
     name: 'genesis-foreman-verify'
 
     project-type: freestyle
-
+    disabled: true
     node: ericsson-build
 
     concurrent: true

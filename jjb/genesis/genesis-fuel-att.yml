@@ -22,7 +22,7 @@
     name: 'genesis-{installer}-daily-att-{stream}'
 
     project-type: freestyle
-
+    disabled: true
     node: att-build
 
     parameters:
