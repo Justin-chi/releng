@@ -49,8 +49,8 @@
 
     builders:
         - shell: |
-            source /opt/virtualenv/jenkins-job-builder/bin/activate
-            jenkins-jobs test jjb/
+            #source /opt/virtualenv/jenkins-job-builder/bin/activate
+            sudo jenkins-jobs test jjb/
 
 - job-template:
     name: 'builder-merge'
