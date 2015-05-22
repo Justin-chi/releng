@@ -16,6 +16,13 @@
             default: '{branch}'
             description: "JJB configured GERRIT_BRANCH parameter"
 
+- parameter:
+    name: git-parameter
+    parameters:
+        - string:
+            name: GIT_BRANCH
+            default: '{branch}'  
+
 - scm:
     name: git-scm
     scm:
@@ -24,7 +31,7 @@
             url: '$GIT_BASE'
             refspec: ''
             branches:
-                - 'origin/{branch}'
+                - 'origin/$GIT_BRANCH'
             skip-tag: true
             wipe-workspace: true
 
@@ -47,6 +54,11 @@
             type: absolute
             timeout: 360
             fail: true
+
+- trigger:
+    name: pollscm
+    triggers:
+        - pollscm: "*/2 * * * *"
 
 - trigger:
     name: gerrit-trigger-patch-submitted
