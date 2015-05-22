@@ -1,4 +1,4 @@
-- project:
+- projecti:
     name: builder-jobs
     jobs:
         - 'builder-verify-jjb'
