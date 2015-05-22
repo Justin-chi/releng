@@ -1,4 +1,4 @@
-- projecti:
+- project:
     name: builder-jobs
     jobs:
         - 'builder-verify-jjb'
@@ -46,7 +46,7 @@
     builders:
         - shell: |
             #source /opt/virtualenv/jenkins-job-builder/bin/activate
-            sudo jenkins-jobs test jjb/
+            sudo jenkins-jobs test jjb/ -r
 
 - job-template:
     name: 'builder-merge'
