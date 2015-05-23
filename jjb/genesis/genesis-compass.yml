@@ -29,7 +29,7 @@
 
     disabled: true
 
-    node: compass-build-deploy-03
+    node: compass-build-deploy-01
 
     logrotate:
         daysToKeep: 30
@@ -43,46 +43,24 @@
             default: $WORKSPACE/build_output
         - string:
             name: GIT_BASE
-            default: https://gerrit.opnfv.org/gerrit/genesis
+            default: https://github.com/Justin-chi/{project}
         - project-parameter:
             project: '{project}'
         - gerrit-parameter:
             branch: 'master'
-
+        - string:
+            name: GIT_BRANCH
+            default: master
+            description: "Branch to build, deploy and test."
     scm:
-        - gerrit-trigger-scm:
-            credentials-id: '{ssh-credentials}'
-            refspec: '$GERRIT_REFSPEC'
-            choosing-strategy: 'gerrit'
+        - 'git-scm'
 
     wrappers:
         - ssh-agent-credentials:
             user: '{ssh-credentials}'
 
     triggers:
-        - gerrit:
-            trigger-on:
-                - patchset-created-event:
-                    exclude-drafts: 'false'
-                    exclude-trivial-rebase: 'false'
-                    exclude-no-code-change: 'false'
-                - draft-published-event
-                - comment-added-contains-event:
-                    comment-contains-value: 'recheck'
-                - comment-added-contains-event:
-                    comment-contains-value: 'reverify'
-            projects:
-              - project-compare-type: 'ANT'
-                project-pattern: 'genesis'
-                branches:
-                  - branch-compare-type: 'ANT'
-                    branch-pattern: '**/master'
-                file-paths:
-                  - compare-type: ANT
-                    pattern: 'common/**'
-                  - compare-type: ANT
-                    pattern: 'compass/**'
-
+        - pollscm: "H/2 * * * *"
 
     builders:
         - 'compass-verify'
@@ -96,7 +74,7 @@
 
     project-type: freestyle
 
-    node: compass-build-deploy-03
+    node: compass-build-deploy-01
 
     logrotate:
         daysToKeep: 30
@@ -110,12 +88,15 @@
             default: $WORKSPACE/build_output
         - string:
             name: GIT_BASE
-            default: https://gerrit.opnfv.org/gerrit/genesis
+            default: https://github.com/Justin-chi/{project} 
         - project-parameter:
             project: '{project}'
         - gerrit-parameter:
             branch: 'master'
-
+        - string:
+            name: GIT_BRANCH
+            default: master
+            description: "Branch to build, deploy and test."
     scm:
         - gerrit-trigger-scm:
             credentials-id: '{ssh-credentials}'
@@ -152,7 +133,7 @@
 
     project-type: freestyle
 
-    node: compass-build-deploy-03
+    node: compass-build-deploy-01
 
     parameters:
         - string:
@@ -164,15 +145,11 @@
             description: "Installer to use."
         - string:
             name: GIT_BASE
-            default: https://gerrit.opnfv.org/gerrit/genesis
+            default: https://github.com/Justin-chi/{project}
         - string:
-            name: GERRIT_BRANCH
-            default: origin/master
+            name: GIT_BRANCH
+            default: master
             description: "Branch to build, deploy and test."
-        - string:
-            name: GERRIT_REFSPEC
-            default: refs/heads/master
-            description: "Refspec to retrieve."
 
     scm:
         - git:
