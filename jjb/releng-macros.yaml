@@ -20,7 +20,7 @@
     name: git-scm
     scm:
         - git:
-            credentials-id: '{ssh-credentials}'
+            credentials-id: '{credentials-id}'
             url: '$GIT_BASE'
             refspec: ''
             branches:
