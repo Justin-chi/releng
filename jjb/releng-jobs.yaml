@@ -1,4 +1,4 @@
-- project:
+- project
     name: builder-jobs
     jobs:
         - 'builder-verify-jjb'
@@ -39,7 +39,7 @@
             user: '{ssh-credentials}'
 
     triggers:
-        - pollscm: "H/2 * * *"       
+        - pollscm: "H/2 * * * *"       
 
     builders:
         - shell: |
