@@ -20,11 +20,11 @@
     name: git-scm
     scm:
         - git:
-            credentials-id: '{credentials-id}'
+            credentials-id: '{ssh-credentials}'
             url: '$GIT_BASE'
             refspec: ''
             branches:
-                - 'origin/{branch}'
+                - 'origin/$GIT_BRANCH'
             skip-tag: true
             wipe-workspace: true
 
