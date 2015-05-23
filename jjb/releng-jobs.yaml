@@ -46,6 +46,11 @@
             #source /opt/virtualenv/jenkins-job-builder/bin/activate
             sudo jenkins-jobs test jjb/
 
+    publishers:    
+        - trigger:
+            project: 'builder-merge'
+            threshold: SUCCESS            
+
 - job-template:
     name: 'builder-merge'
 
@@ -75,22 +80,6 @@
     wrappers:
         - ssh-agent-credentials:
             user: '{ssh-credentials}'
-
-    triggers:
-        - gerrit:
-            trigger-on:
-                - change-merged-event
-                - comment-added-contains-event:
-                    comment-contains-value: 'remerge'
-            projects:
-              - project-compare-type: 'ANT'
-                project-pattern: 'releng'
-                branches:
-                    - branch-compare-type: 'ANT'
-                      branch-pattern: '**/master'
-                file-paths:
-                    - compare-type: ANT
-                      pattern: jjb/**
 
     builders:
         - shell: |
