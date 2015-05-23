@@ -39,12 +39,8 @@
             user: '{ssh-credentials}'
 
     triggers:
-<<<<<<< HEAD
         - pollscm: "H/2 * * * *"       
-=======
-        - pollscm: "H/2 * * *"       
->>>>>>> d6186ec26a14fae9831eada244c9375eae308398
-
+    
     builders:
         - shell: |
             #source /opt/virtualenv/jenkins-job-builder/bin/activate
