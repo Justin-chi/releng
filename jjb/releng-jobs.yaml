@@ -91,5 +91,5 @@
                 #source /opt/virtualenv/jenkins-job-builder/bin/activate
                 #cd /opt/jenkins-ci/releng
                 #git pull
-                sudo jenkins-jobs update --delete-old jjb/
+                sudo jenkins-jobs update --delete-old jjb/ -r
 
