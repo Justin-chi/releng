@@ -12,7 +12,7 @@
     jobs:
         - 'genesis-fuel-verify'
         - 'genesis-fuel-merge'
-        - 'genesis-fuel-daily-{stream}'
+        #- 'genesis-fuel-daily-{stream}'
         - 'genesis-fuel-build'
         - 'genesis-fuel-deploy'
         - 'genesis-fuel-deploy-virtual'
@@ -29,7 +29,7 @@
     name: 'genesis-fuel-verify'
 
     project-type: freestyle
-    disabled: true
+
     node: ericsson-build
 
     concurrent: true
@@ -95,7 +95,7 @@
     name: 'genesis-fuel-merge'
 
     project-type: freestyle
-    disabled: true
+
     node: ericsson-build
 
     concurrent: true
@@ -158,7 +158,7 @@
 
     node: ericsson-build
 
-    disabled: true
+    disabled: false
 
     parameters:
         - project-parameter:
@@ -173,7 +173,7 @@
             branch: master
 
     triggers:
-        - timed: '@midnight'
+        - timed: 'H */6 * * *'
 
     logrotate:
         daysToKeep: 30
@@ -186,10 +186,6 @@
           - project: 'genesis-fuel-build'
             git-revision: true
             block: true
-        - trigger-builds:
-          - project: 'genesis-fuel-deploy-virtual'
-            git-revision: true
-            block: false
         - trigger-builds:
           - project: 'genesis-fuel-deploy'
             git-revision: true
@@ -268,7 +264,7 @@
 
     project-type: freestyle
 
-    disabled: false
+    disabled: true
 
     node: ericsson-build
 
@@ -373,14 +369,19 @@
             set -o nounset
             set -o pipefail
 
-            # remove the fuel master ssh key from $HOME/.ssh/known_hosts
-            ssh-keygen -R 172.30.200.206
-
             # source the file so we get OPNFV vars
             source latest.properties
 
             # echo the info about artifact that is used during the deployment
             echo "Using $(echo $OPNFV_ARTIFACT_URL | cut -d'/' -f4) for deployment"
+
+            # create TMPDIR if it doesn't exist
+            export TMPDIR=$HOME/tmpdir
+            [[ -d $TMPDIR ]] || mkdir -p $TMPDIR
+
+            # change permissions down to TMPDIR
+            chmod a+x $HOME
+            chmod a+x $TMPDIR
 
             # set TOPDIR
             export TOPDIR=$WORKSPACE/fuel/prototypes/auto-deploy
@@ -391,7 +392,9 @@
             echo
 
             # start the deployment
-            sudo  ${TOPDIR}/deploy/deploy.sh $WORKSPACE/opnfv.iso ${TOPDIR}/configs/lf_pod1/dea.yaml ${TOPDIR}/configs/lf_pod1/dha.yaml
+            echo "Issuing command"
+            echo "sudo TMPDIR=${TMPDIR} ${TOPDIR}/deploy/deploy.sh ${WORKSPACE}/opnfv.iso ${TOPDIR}/configs/lf_pod1/dea_no-ha.yaml ${TOPDIR}/configs/lf_pod1/dha.yaml"
+            sudo TMPDIR=${TMPDIR} ${TOPDIR}/deploy/deploy.sh ${WORKSPACE}/opnfv.iso ${TOPDIR}/configs/lf_pod1/dea_no-ha.yaml ${TOPDIR}/configs/lf_pod1/dha.yaml
 
             echo
             echo "--------------------------------------------------------"
