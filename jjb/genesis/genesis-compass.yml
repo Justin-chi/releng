@@ -45,11 +45,9 @@
             default: $WORKSPACE/build_output
         - string:
             name: GIT_BASE
-            default: https://github.com/Justin-chi/{project}
+            default: https://github.com/Justin-chi/compass-ci
         - project-parameter:
             project: '{project}'
-        - gerrit-parameter:
-            branch: 'master'
         - string:
             name: GIT_BRANCH
             default: master
@@ -65,8 +63,8 @@
         - pollscm: "H/2 * * * *"
 
     builders:
-        - 'compass-verify'
-        - 'compass-workspace-cleanup'
+        - 'compass-build'
+        #- 'compass-workspace-cleanup'
 
 - job-template:
     name: 'genesis-compass-merge'
