@@ -6,8 +6,8 @@
     installer:
         - compass
     jobs:
-        - 'genesis-compass-verify'
-        - 'genesis-compass-merge'
+        - 'genesis-compass-build-verify'
+        #- 'genesis-compass-merge'
         - 'genesis-compass-daily-{stream}'
         - 'genesis-compass-build'
         - 'genesis-compass-deploy'
@@ -25,7 +25,7 @@
 ########################
 
 - job-template:
-    name: 'genesis-compass-verify'
+    name: 'genesis-compass-build-verify'
 
     project-type: freestyle
 
@@ -66,6 +66,7 @@
 
     builders:
         - 'compass-verify'
+        - 'compass-workspace-cleanup'
 
 - job-template:
     name: 'genesis-compass-merge'
