@@ -158,7 +158,7 @@
 
     node: ericsson-build
 
-    disabled: false
+    disabled: true
 
     parameters:
         - project-parameter:
@@ -264,7 +264,7 @@
 
     project-type: freestyle
 
-    disabled: true
+    disabled: false
 
     node: ericsson-build
 

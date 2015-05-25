@@ -152,6 +152,8 @@
 
     node: ericsson-build
 
+    disable: true
+
     parameters:
         - string:
             name: BUILD_DIRECTORY

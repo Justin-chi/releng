@@ -150,6 +150,8 @@
 
     project-type: freestyle
 
+    disable: true
+
     node: ericsson-build
 
     parameters:
