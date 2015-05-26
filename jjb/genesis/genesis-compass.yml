@@ -44,13 +44,12 @@
             project: '{project}'
         - compass-parameter:
             installer: '{installer}'
-        - string:
-            name: GIT_BRANCH
-            default: master
-            description: ""
 
     scm:
-        - 'git-scm'
+        - 'git-scm':
+            credentials-id: '{ssh-credentials}'
+            refspec: ''
+            branch: master
 
     wrappers:
         - ssh-agent-credentials:
@@ -180,10 +179,6 @@
             project: '{project}'
         - compass-parameter:
             installer: '{installer}'
-        - string:
-            name: GIT_BRANCH
-            default: master
-            description: ""
 
     scm:
         - git-scm:
