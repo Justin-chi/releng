@@ -83,7 +83,10 @@
             default: https://github.com/Justin-chi/{project}
             description: "POD1 has some issues with cloning using https so that's why GIT_BASE is overriden here again."
     scm:
-        - 'git-scm'
+        - 'git-scm':
+            credentials-id: '{ssh-credentials}'
+            refspec: ''
+            branch: master
 
     wrappers:
         - ssh-agent-credentials:
