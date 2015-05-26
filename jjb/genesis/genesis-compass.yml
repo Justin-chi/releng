@@ -3,8 +3,8 @@
 
     name: genesis-compass
 
-    installer:
-        - compass
+    installer: 'compass'
+
     jobs:
         - 'genesis-compass-build-verify'
         #- 'genesis-compass-merge'
@@ -40,18 +40,11 @@
         artifactNumToKeep: -1
 
     parameters:
-        - string:
-            name: BUILD_DIRECTORY
-            default: $WORKSPACE/build_output
-        - string:
-            name: GIT_BASE
-            default: https://github.com/Justin-chi/compass-ci
         - project-parameter:
             project: '{project}'
-        - string:
-            name: GIT_BRANCH
-            default: master
-            description: "Branch to build, deploy and test."
+        - compass-parameter:
+            installer: '{installer}'
+
     scm:
         - 'git-scm'
 
@@ -84,20 +77,11 @@
         artifactNumToKeep: 5
 
     parameters:
-        - string:
-            name: BUILD_DIRECTORY
-            default: $WORKSPACE/build_output
-        - string:
-            name: GIT_BASE
-            default: https://github.com/Justin-chi/{project} 
         - project-parameter:
             project: '{project}'
-        - gerrit-parameter:
-            branch: 'master'
-        - string:
-            name: GIT_BRANCH
-            default: master
-            description: "Branch to build, deploy and test."
+        - compass-parameter:
+            installer: '{installer}'
+
     scm:
         - gerrit-trigger-scm:
             credentials-id: '{ssh-credentials}'
@@ -137,31 +121,19 @@
     node: compass-build-deploy-01
 
     parameters:
-        - string:
-            name: BUILD_DIRECTORY
-            default: $WORKSPACE/build_output
-        - string:
-            name: INSTALLER
-            default: 'compass'
-            description: "Installer to use."
-        - string:
-            name: GIT_BASE
-            default: https://github.com/Justin-chi/{project}
-        - string:
-            name: GIT_BRANCH
-            default: master
-            description: "Branch to build, deploy and test."
+        - project-parameter:
+            project: '{project}'
+        - compass-parameter:
+            installer: '{installer}'
 
     scm:
-        - git:
-            skip-tag: true
-            url: $GIT_BASE
-            branches:
-                - $GERRIT_BRANCH
-            refspec: $GERRIT_REFSPEC
+        - git-scm:
+            credentials-id: '{ssh-credentials}'
+            refspec: ''
+            branch: master
 
     triggers:
-        - pollscm: '@midnight'
+        - timed: '@midnight'
 
     logrotate:
         daysToKeep: 30
@@ -170,7 +142,21 @@
         artifactNumToKeep: -1
 
     builders:
-        - 'compass-daily-master'
+        - trigger-builds:
+          - project: 'genesis-compass-build'
+            git-revision: true
+            block: true
+        - trigger-builds:
+          - project: 'genesis-fuel-compass-virtual'
+            git-revision: true
+            block: false
+        - trigger-builds:
+          - project: 'genesis-compass-deploy'
+            git-revision: true
+            block: true
+        - trigger-builds:
+          - project: 'functest-opnfv-jump-1'
+            block: true
 
 - job-template:
     name: 'genesis-compass-build'
@@ -212,10 +198,8 @@
     parameters:
         - project-parameter:
             project: '{project}'
-        - string:
-            name: GIT_BASE
-            default: ssh://gerrit.opnfv.org:29418/$PROJECT
-            description: "POD1 has some issues with cloning using https so that's why GIT_BASE is overriden here again."
+        - compass-parameter:
+            installer: '{installer}'
 
     scm:
         - git-scm:
@@ -245,6 +229,8 @@
     parameters:
         - project-parameter:
             project: '{project}'
+        - fuel-parameter:
+            installer: '{installer}'
 
     scm:
         - git-scm:
@@ -260,6 +246,37 @@
 
     builders:
         - 'compass-deploy-virtual'
+
+########################
+# parameter macros
+########################
+- parameter:
+    name: compass-parameter
+    parameters:
+        - string:
+            name: INSTALLER
+            default: '{installer}'
+            description: "Installer to use."
+        - string:
+            name: BUILD_DIRECTORY
+            default: $WORKSPACE/build_output
+            description: "Directory where the build artifact will be located upon the completion of the build."
+        - string:
+            name: CACHE_DIRECTORY
+            default: $HOME/opnfv/cache/genesis-$INSTALLER
+            description: "Directory where the cache to be used during the build is located."
+        - string:
+            name: GIT_BASE
+            default: https://github.com/Justin-chi/compass-ci
+            description: "Used for overriding the GIT URL coming from Global Jenkins configuration in case if the stuff is done on none-LF HW."
+        - string:
+            name: GS_URL
+            default: artifacts.opnfv.org/$PROJECT/$INSTALLER
+            description: "URL to Google Storage."
+
+########################
+# builder macros
+########################
 
 - builder:
     name: compass-verify
@@ -347,7 +364,7 @@
             chmod a+x $TMPDIR
 
             # set TOPDIR
-            export TOPDIR=$WORKSPACE/fuel/prototypes/auto-deploy
+            export TOPDIR=$WORKSPACE/$INSTALLER/prototypes/auto-deploy
 
             # log info to console
             echo "Starting the deployment using $INSTALLER. This could take some time..."
