@@ -23,7 +23,7 @@
 
     project-type: freestyle
 
-    disable: true
+    disabled: true
 
     node: att-build
 

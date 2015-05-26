@@ -23,7 +23,7 @@
 
     project-type: freestyle
 
-    disable: false
+    disabled: false
 
     node: dell-build
 
