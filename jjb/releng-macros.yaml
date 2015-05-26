@@ -24,7 +24,7 @@
             url: '$GIT_BASE'
             refspec: ''
             branches:
-                - 'origin/$GIT_BRANCH'
+                - 'origin/{branch}'
             skip-tag: true
             wipe-workspace: true
 
