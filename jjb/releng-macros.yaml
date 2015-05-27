@@ -29,6 +29,19 @@
             wipe-workspace: true
 
 - scm:
+    name: git-scm-url
+    scm:
+        - git:
+            credentials-id: '{credentials-id}'
+            url: '{url}'
+            refspec: ''
+            branches:
+                - 'origin/{branch}'
+            skip-tag: true
+            wipe-workspace: true
+
+
+- scm:
     name: gerrit-trigger-scm
     scm:
         - git:
