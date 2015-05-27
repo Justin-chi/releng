@@ -12,9 +12,9 @@
         - 'genesis-compass-build'
         - 'genesis-compass-deploy'
         - 'genesis-compass-deploy-virtual'
-        - 'genesis-upstream-compass-core-scm'
-        - 'genesis-upstream-compass-adapter-scm'
-        - 'genesis-upstream-compass-install-scm'
+        - 'genesis-compass-upstream-core-scm'
+        - 'genesis-compass-upstream-adapter-scm'
+        - 'genesis-compass-upstream-install-scm'
     # stream:    branch with - in place of / (eg. stable-helium)
     # branch:    branch (eg. stable/helium)
     stream:
@@ -28,7 +28,7 @@
 ########################
 
 - job-template:
-    name: 'genesis-upstream-compass-core-scm'
+    name: 'genesis-compass-upstream-core-scm'
 
     project-type: freestyle
 
@@ -73,7 +73,7 @@
             threshold: SUCCESS
 
 - job-template:
-    name: 'genesis-upstream-compass-adapter-scm'
+    name: 'genesis-compass-upstream-adapter-scm'
 
     project-type: freestyle
 
@@ -119,7 +119,7 @@
 
 
 - job-template:
-    name: 'genesis-upstream-compass-install-scm'
+    name: 'genesis-compass-upstream-install-scm'
 
     project-type: freestyle
 
