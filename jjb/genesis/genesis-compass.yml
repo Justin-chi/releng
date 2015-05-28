@@ -53,7 +53,7 @@
             credentials-id: '{ssh-credentials}'
             url: $GIT_BASE/compass-core
             refspec: ''
-            branch: 'origin/dev/experimental'
+            branch: 'dev/experimental'
 
     wrappers:
         - ssh-agent-credentials:
@@ -98,7 +98,7 @@
             credentials-id: '{ssh-credentials}'
             url: $GIT_BASE/compass-adapters
             refspec: ''
-            branch: 'origin/dev/experimental' 
+            branch: 'dev/experimental' 
 
     wrappers:
         - ssh-agent-credentials:
