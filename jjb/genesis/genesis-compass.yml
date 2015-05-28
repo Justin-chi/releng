@@ -52,8 +52,8 @@
         - 'git-scm-url':
             credentials-id: '{ssh-credentials}'
             url: $GIT_BASE/compass-core
-            refspec: 'dev/experimental'
-            branch: master
+            refspec: ''
+            branch: 'origin/dev/experimental'
 
     wrappers:
         - ssh-agent-credentials:
@@ -97,8 +97,8 @@
         - 'git-scm-url':
             credentials-id: '{ssh-credentials}'
             url: $GIT_BASE/compass-adapters
-            refspec: 'dev/experimental'
-            branch: master
+            refspec: ''
+            branch: 'origin/dev/experimental' 
 
     wrappers:
         - ssh-agent-credentials:
