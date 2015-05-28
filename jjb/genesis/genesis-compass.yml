@@ -387,6 +387,9 @@
             refspec: ''
             branch: master
 
+    triggers:
+        - pollscm: "H/2 * * * *"
+
     logrotate:
         daysToKeep: 30
         numToKeep: 10
