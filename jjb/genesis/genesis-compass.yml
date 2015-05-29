@@ -425,7 +425,10 @@
             name: GS_URL
             default: artifacts.opnfv.org/$PROJECT/$INSTALLER
             description: "URL to Google Storage."
-
+        - string:
+            name: INTERNAL_REPO
+            default: "root@192.168.121.12:~/kun/artifacts"
+            description: "Artifact Repository"
 ########################
 # builder macros
 ########################
@@ -491,6 +494,8 @@
             echo
             echo "--------------------------------------------------------"
             echo "Done!"
+            sudo scp $WORKSPACE/opnfv.properties @INTERNAL_REPO
+            sudo scp $BUILD_DIRECTORY/$OPNFV_ARTIFACT_VERSION @INTERNAL_REPO
 
 - builder:
     name: 'compass-deploy'
