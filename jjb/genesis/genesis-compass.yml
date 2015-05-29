@@ -546,7 +546,9 @@
             echo "--------------------------------------------------------"
             echo
 
-            ssh -o BatchMode=yes -o TCPKeepAlive=yes cideploy@10.118.34.205 ./cideploy.sh
+            cd $WORKSPACE
+            ./ci/deploy.sh five
+            # ssh -o BatchMode=yes -o TCPKeepAlive=yes cideploy@10.118.34.205 ./cideploy.sh
 
             echo
             echo "--------------------------------------------------------"
