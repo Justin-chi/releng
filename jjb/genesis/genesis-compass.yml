@@ -493,9 +493,10 @@
 
             echo
             echo "--------------------------------------------------------"
-            echo "Done!"
-            sudo scp $WORKSPACE/opnfv.properties @INTERNAL_REPO
-            sudo scp $BUILD_DIRECTORY/$OPNFV_ARTIFACT_VERSION @INTERNAL_REPO
+            # upload artifact to http server
+            sudo scp $WORKSPACE/opnfv.properties $INTERNAL_REPO
+            sudo scp $BUILD_DIRECTORY/$OPNFV_ARTIFACT_VERSION $INTERNAL_REPO
+            echo "upload artifact to http server, done!"
 
 - builder:
     name: 'compass-deploy'
