@@ -2,8 +2,7 @@
     name: functest
 
     pod:
-        - 'opnfv-jump-1'
-        - 'opnfv-jump-2'
+        - 'huawei-pod3'
     jobs:
         - 'functest-{pod}'
         - 'functest-openstack-bench-test'
@@ -11,9 +10,9 @@
         - 'functest-odl-test'
         - 'functest-vims-test'
         - 'functest-vping-test'
-        - 'functest-daily-{stream}'
-        - 'functest-merge'
-        - 'functest-verify'
+        #- 'functest-daily-{stream}'
+        #- 'functest-merge'
+        #- 'functest-verify'
 
     # stream:    branch with - in place of / (eg. stable-helium)
     # branch:    branch (eg. stable/helium)
