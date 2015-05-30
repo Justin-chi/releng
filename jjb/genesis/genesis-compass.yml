@@ -494,8 +494,8 @@
             echo
             echo "--------------------------------------------------------"
             # upload artifact to http server
-            sudo scp $WORKSPACE/opnfv.properties $INTERNAL_REPO
-            sudo scp $BUILD_DIRECTORY/$OPNFV_ARTIFACT_VERSION $INTERNAL_REPO
+            scp $WORKSPACE/opnfv.properties $INTERNAL_REPO
+            scp $BUILD_DIRECTORY/opnfv-$OPNFV_ARTIFACT_VERSION.iso $INTERNAL_REPO
             echo "upload artifact to http server, done!"
 
 - builder:
