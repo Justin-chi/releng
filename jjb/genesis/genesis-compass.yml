@@ -506,6 +506,11 @@
             # create the cache directory if it doesn't exist
             [[ -d $CACHE_DIRECTORY ]] || mkdir -p $CACHE_DIRECTORY
 
+            #copy iso&deb files
+            cd $CACHE_DIRECTORY
+            wget  -r  http://192.168.121.12:9999/iso_deb -nH
+            mv $CACHE_DIRECTORY/iso_deb $CACHE_DIRECTORY/deb
+
             # set OPNFV_ARTIFACT_VERSION
             export OPNFV_ARTIFACT_VERSION=$(date -u +"%Y-%m-%d_%H-%M-%S")
 
