@@ -47,7 +47,9 @@
             project: '{project}'
         - compass-parameter:
             installer: '{installer}'
-
+        - string:
+            name: BUILD_REPO
+            default: "/root/kun/iso_deb/"
     scm:
         - 'git-scm-url':
             credentials-id: '{ssh-credentials}'
@@ -68,7 +70,7 @@
     publishers:
         - trigger:
             project: 'genesis-compass-build'
-            threshold: FAILURE
+            threshold: SUCCESS 
 
 - job-template:
     name: 'genesis-compass-upstream-core-scm'
