@@ -69,7 +69,7 @@
 
     publishers:
         - trigger:
-            project: 'genesis-compass-build'
+            project: 'genesis-compass-build-verify'
             threshold: SUCCESS 
 
 - job-template:
