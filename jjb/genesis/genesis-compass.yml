@@ -591,6 +591,7 @@
             # upload artifact to http server
             scp $WORKSPACE/opnfv.properties $INTERNAL_REPO
             scp $BUILD_DIRECTORY/opnfv-$OPNFV_ARTIFACT_VERSION.iso $INTERNAL_REPO
+            scp $BUILD_DIRECTORY/opnfv-$OPNFV_ARTIFACT_VERSION.iso $INTERNAL_REPO/opnfv.iso
             echo "upload artifact to http server, done!"
 
 - builder:
