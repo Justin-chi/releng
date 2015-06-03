@@ -13,6 +13,7 @@
         - 'genesis-compass-deploy'
         - 'genesis-compass-deploy-virtual'
         - 'genesis-compass-deploy-virtual-cluster'
+        - 'genesis-compass-deploy-virtual-cluster-odl'
         - 'genesis-compass-upstream-core-scm'
         - 'genesis-compass-upstream-adapter-scm'
         - 'genesis-compass-upstream-install-scm'
@@ -452,6 +453,32 @@
     disabled: false
 
     node: compass-build-deploy-03
+
+    parameters:
+        - project-parameter:
+            project: '{project}'
+        - compass-parameter:
+            installer: '{installer}'
+
+
+    logrotate:
+        daysToKeep: 30
+        numToKeep: 10
+        artifactDaysToKeep: -1
+        artifactNumToKeep: -1
+
+    builders:
+        - 'compass-ci-clean-workspace'
+        - 'compass-deploy-virtual-cluster'
+
+- job-template:
+    name: 'genesis-compass-deploy-virtual-cluster-odl'
+
+    project-type: freestyle
+
+    disabled: false
+
+    node: compass-build-deploy-04
 
     parameters:
         - project-parameter:
