@@ -582,6 +582,11 @@
 
             #copy iso&deb files
             cd $CACHE_DIRECTORY
+            if [ -d $CACHE_DIRECTORY/deb ]
+            then
+                echo "rm /deb/ directory"
+                rm -rf $CACHE_DIRECTORY/deb
+            fi
             wget  -r  http://192.168.121.12:9999/iso_deb -nH
             mv $CACHE_DIRECTORY/iso_deb $CACHE_DIRECTORY/deb
 
