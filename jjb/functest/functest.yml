@@ -5,11 +5,11 @@
         - 'huawei-pod3'
     jobs:
         - 'functest-{pod}'
-        - 'functest-openstack-bench-test'
-        - 'functest-openstack-tempest-smoke-test'
-        - 'functest-odl-test'
-        - 'functest-vims-test'
-        - 'functest-vping-test'
+        #- 'functest-openstack-bench-test'
+        #- 'functest-openstack-tempest-smoke-test'
+        #- 'functest-odl-test'
+        #- 'functest-vims-test'
+        #- 'functest-vping-test'
         #- 'functest-daily-{stream}'
         #- 'functest-merge'
         #- 'functest-verify'
@@ -120,6 +120,10 @@
     parameters:
         - project-parameter:
             project: '{project}'
+        - string:
+            name: GIT_BASE
+            default: https://github.com/Justin-chi/{project}
+            description: "POD1 has some issues with cloning using https so that's why GIT_BASE is overriden here again."
 
     scm:
         - git-scm:
