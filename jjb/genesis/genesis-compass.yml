@@ -358,11 +358,12 @@
             git-revision: true
             block: false
         - trigger-builds:
-          - project: 'genesis-compass-deploy'
+          - project: 'genesis-compass-deploy-virtual-cluster'
             git-revision: true
             block: true
         - trigger-builds:
-          - project: 'functest-opnfv-jump-1'
+          - project: 'genesis-compass-deploy-virtual-cluster-odl'
+            git-revision: true
             block: true
 
 - job-template:
