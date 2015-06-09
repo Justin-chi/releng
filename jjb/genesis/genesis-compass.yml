@@ -117,6 +117,12 @@
         - trigger:
             project: 'genesis-compass-deploy-virtual'
             threshold: SUCCESS
+        - trigger:
+            project: 'genesis-compass-deploy-virtual-cluster'
+            threshold: SUCCESS
+        - trigger:
+            project: 'genesis-compass-deploy-virtual-cluster-odl'
+            threshold: SUCCESS
 
 - job-template:
     name: 'genesis-compass-upstream-adapter-scm'
@@ -162,7 +168,12 @@
         - trigger:
             project: 'genesis-compass-deploy-virtual'
             threshold: SUCCESS
-
+        - trigger:
+            project: 'genesis-compass-deploy-virtual-cluster'
+            threshold: SUCCESS
+        - trigger:
+            project: 'genesis-compass-deploy-virtual-cluster-odl'
+            threshold: SUCCESS
 
 - job-template:
     name: 'genesis-compass-upstream-install-scm'
@@ -207,6 +218,12 @@
     publishers:
         - trigger:
             project: 'genesis-compass-deploy-virtual'
+            threshold: SUCCESS
+        - trigger:
+            project: 'genesis-compass-deploy-virtual-cluster'
+            threshold: SUCCESS
+        - trigger:
+            project: 'genesis-compass-deploy-virtual-cluster-odl'
             threshold: SUCCESS
 
 - job-template:
