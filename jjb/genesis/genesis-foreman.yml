@@ -13,13 +13,14 @@
         - 'genesis-foreman-verify'
         - 'genesis-foreman-merge'
         - 'genesis-foreman-daily-{stream}'
-        - 'genesis-foreman-build'
-        - 'genesis-foreman-deploy'
+        - 'genesis-foreman-build-{stream}'
+        - 'genesis-foreman-deploy-{stream}'
 
     stream:
         - master:
             branch: 'master'
-
+        - stable-arno:
+            branch: 'stable/arno'
 ########################
 # job templates
 ########################
@@ -169,7 +170,7 @@
         - git-scm:
             credentials-id: '{ssh-credentials}'
             refspec: ''
-            branch: master
+            branch: '{branch}'
 
     triggers:
         - timed: 'H */6 * * *'
@@ -194,7 +195,7 @@
             block: true
 
 - job-template:
-    name: 'genesis-foreman-build'
+    name: 'genesis-foreman-build-{stream}'
 
     project-type: freestyle
 
@@ -216,14 +217,14 @@
         - git-scm:
             credentials-id: '{ssh-credentials}'
             refspec: ''
-            branch: master
+            branch: '{branch}'
 
     builders:
         - 'foreman-build'
         - 'foreman-upload-artifact'
 
 - job-template:
-    name: 'genesis-foreman-deploy'
+    name: 'genesis-foreman-deploy-{stream}'
 
     project-type: freestyle
 
@@ -247,7 +248,7 @@
         - git-scm:
             credentials-id: '{ssh-credentials}'
             refspec: ''
-            branch: master
+            branch: '{branch}'
 
     builders:
         - 'foreman-deploy'
