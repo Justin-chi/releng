@@ -56,7 +56,7 @@
             branch: '{branch}'
         - foreman-parameter:
             installer: '{installer}'
-            branch-name: '{gs-pathname}'
+            gs-pathname: '{gs-pathname}'
     scm:
         - gerrit-trigger-scm:
             credentials-id: '{ssh-credentials}'
@@ -122,7 +122,7 @@
             branch: 'master'
         - foreman-parameter:
             installer: '{installer}'
-            branch-name: 'master'
+            gs-pathname: ''
     scm:
         - gerrit-trigger-scm:
             credentials-id: '{ssh-credentials}'
@@ -169,12 +169,15 @@
             project: '{project}'
         - foreman-parameter:
             installer: '{installer}'
-            branch-name: '{gs-pathname}'
+            gs-pathname: '{gs-pathname}'
     scm:
         - git-scm:
             credentials-id: '{ssh-credentials}'
             refspec: ''
             branch: '{branch}'
+
+    triggers:
+        - pollscm: "@midnight"
 
     logrotate:
         daysToKeep: 30
@@ -213,7 +216,7 @@
             project: '{project}'
         - foreman-parameter:
             installer: '{installer}'
-            branch-name: '{gs-pathname}'
+            gs-pathname: '{gs-pathname}'
     scm:
         - git-scm:
             credentials-id: '{ssh-credentials}'
@@ -244,7 +247,7 @@
             project: '{project}'
         - foreman-parameter:
             installer: '{installer}'
-            branch-name: '{gs-pathname}'
+            gs-pathname: '{gs-pathname}'
         - string:
             name: GIT_BASE
             default: ssh://gerrit.opnfv.org:29418/$PROJECT
@@ -283,7 +286,7 @@
             description: "Used for overriding the GIT URL coming from Global Jenkins configuration in case if the stuff is done on none-LF HW."
         - string:
             name: GS_URL
-            default: artifacts.opnfv.org/$PROJECT/$INSTALLER/{branch-name}
+            default: artifacts.opnfv.org/$PROJECT/$INSTALLER/{gs-pathname}
             description: "URL to Google Storage."
 
 ########################
