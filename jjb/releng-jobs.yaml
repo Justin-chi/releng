@@ -48,7 +48,7 @@
     builders:
         - shell: |
             #source /opt/virtualenv/jenkins-job-builder/bin/activate
-            sudo jenkins-jobs test jjb/
+            sudo jenkins-jobs test jjb/ -r
 
     publishers:    
         - trigger:
