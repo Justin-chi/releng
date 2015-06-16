@@ -24,7 +24,7 @@
             gs-pathname: ''
         - stable-arno:
             branch: 'stable/arno'
-            gs-pathname: 'arno'
+            gs-pathname: '/arno'
 ########################
 # job templates
 ########################
@@ -176,9 +176,6 @@
             refspec: ''
             branch: '{branch}'
 
-    triggers:
-        - pollscm: "@midnight"
-
     logrotate:
         daysToKeep: 30
         numToKeep: 10
@@ -278,7 +275,7 @@
             description: "Directory where the build artifact will be located upon the completion of the build."
         - string:
             name: CACHE_DIRECTORY
-            default: $HOME/opnfv/cache/genesis-$INSTALLER
+            default: $HOME/opnfv/cache/genesis-$INSTALLER{gs-pathname}
             description: "Directory where the cache to be used during the build is located."
         - string:
             name: GIT_BASE
@@ -286,7 +283,7 @@
             description: "Used for overriding the GIT URL coming from Global Jenkins configuration in case if the stuff is done on none-LF HW."
         - string:
             name: GS_URL
-            default: artifacts.opnfv.org/$PROJECT/$INSTALLER/{gs-pathname}
+            default: artifacts.opnfv.org/$PROJECT/$INSTALLER{gs-pathname}
             description: "URL to Google Storage."
 
 ########################

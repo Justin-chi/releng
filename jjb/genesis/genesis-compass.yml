@@ -71,7 +71,7 @@
     publishers:
         - trigger:
             project: 'genesis-compass-build-verify'
-            threshold: FAILURE
+            threshold: SUCCESS
 
 - job-template:
     name: 'genesis-compass-upstream-core-scm'
