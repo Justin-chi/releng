@@ -14,8 +14,10 @@
     stream:
         - master:
             branch: 'master'
+            gs-pathname: ''
         - stable-arno:
             branch: 'stable/arno'
+            gs-pathname: '/arno'
 
     project: 'octopus'
     somevar: 'foo'
@@ -61,6 +63,8 @@
     parameters:
         - project-parameter:
             project: '{project}'
+        - octopus-parameter:
+            gs-pathname: '{gs-pathname}'
 
     scm:
         - git-scm:
@@ -186,15 +190,29 @@
         - shell:
             !include-raw docu-build.sh
 
+
 ########################
-# trigger macros
-########################
+## parameter macros
+#########################
+- parameter:
+    name: octopus-parameter
+    parameters:
+        - string:
+            name: GS_PATHNAME
+            default: '{gs-pathname}'
+            description: "Version directory where the octopus will be stored in gs repository"
+
+#########################
+## trigger macros
+#########################
 - trigger:
     name: 'octopus-master'
     triggers:
-        - pollscm: "H 8 * * *"
+        - pollscm: "H 7 * * *"
 
 - trigger:
     name: 'octopus-stable-arno'
     triggers:
-        - pollscm: "H 20 * * *"
+        - pollscm: "H 19 * * *"
+
+
