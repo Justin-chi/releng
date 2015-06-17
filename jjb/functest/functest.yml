@@ -390,7 +390,7 @@
             description: "Version directory where the opnfv documents will be stored in gs repository"
         - string:
             name: GIT_BASE
-            default: ssh://gerrit.opnfv.org:29418/$PROJECT 
+            default: https://gerrit.opnfv.org/gerrit/{project} 
             description: "Used for overriding the GIT URL coming from Global Jenkins configuration in case if the stuff is done on none-LF HW."
 ########################
 # trigger macros
