@@ -703,10 +703,12 @@
     builders:
         - shell: |
             #!/bin/bash
+            echo $PATH
             set -o errexit
             set -o nounset
             set -o pipefail
-
+            export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            echo $PATH
             # log info to console
             echo "Starting the deployment on virtual environment using $INSTALLER. This could take some time..."
             echo "--------------------------------------------------------"
