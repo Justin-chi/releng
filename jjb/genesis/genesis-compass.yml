@@ -54,7 +54,7 @@
     scm:
         - 'git-scm-url':
             credentials-id: '{ssh-credentials}'
-            url: $GIT_BASE/compass-ci
+            url: $GIT_BASE/$PROJECT
             refspec: ''
             branch: master
 
@@ -535,7 +535,7 @@
             description: "Directory where the cache to be used during the build is located."
         - string:
             name: GIT_BASE
-            default: https://github.com/Justin-chi
+            default: https://github.com/baigk
             description: "Used for overriding the GIT URL coming from Global Jenkins configuration in case if the stuff is done on none-LF HW."
         - string:
             name: GS_URL
@@ -690,7 +690,7 @@
             echo "--------------------------------------------------------"
             echo
 
-            cd $WORKSPACE
+            cd $WORKSPACE/compass
             ./ci/deploy.sh five
             # ssh -o BatchMode=yes -o TCPKeepAlive=yes cideploy@10.118.34.205 ./cideploy.sh
 
@@ -714,7 +714,7 @@
             echo "--------------------------------------------------------"
             echo
 
-            cd $WORKSPACE
+            cd $WORKSPACE/compass
             ./ci/deploy.sh cluster
             # ssh -o BatchMode=yes -o TCPKeepAlive=yes cideploy@10.118.34.205 ./cideploy.sh
 
