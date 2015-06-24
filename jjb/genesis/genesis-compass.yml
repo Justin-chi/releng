@@ -7,13 +7,11 @@
 
     jobs:
         - 'genesis-compass-build-verify'
-        #- 'genesis-compass-merge'
+        - 'genesis-compass-merge'
         - 'genesis-compass-daily-{stream}'
         - 'genesis-compass-build'
         - 'genesis-compass-deploy'
-        - 'genesis-compass-deploy-virtual'
-        - 'genesis-compass-deploy-virtual-cluster'
-        - 'genesis-compass-deploy-virtual-cluster-odl'
+        - 'genesis-compass-deploy-virtual-{flavor}'
         - 'genesis-compass-upstream-core-scm'
         - 'genesis-compass-upstream-adapter-scm'
         - 'genesis-compass-upstream-install-scm'
@@ -23,6 +21,20 @@
     stream:
         - master:
             branch: 'master'
+
+    flavor:
+        - flve:
+            conf: 'five'
+            node: 'compass-build-deploy-01'
+        - cluster:
+            conf: 'cluster'
+            node: 'compass-build-deploy-03'
+        - cluster_odl:
+            conf: 'cluster'
+            node: 'compass-build-deploy-04'
+        - cluster_11:
+            conf: 'cluster'
+            node: 'compass-build-deploy-05'
 
     project: 'genesis'
 
@@ -115,7 +127,7 @@
             
     publishers:
         - trigger:
-            project: 'genesis-compass-deploy-virtual'
+            project: 'genesis-compass-deploy-virtual-five'
             threshold: SUCCESS
         - trigger:
             project: 'genesis-compass-deploy-virtual-cluster'
@@ -166,7 +178,7 @@
 
     publishers:
         - trigger:
-            project: 'genesis-compass-deploy-virtual'
+            project: 'genesis-compass-deploy-virtual-five'
             threshold: SUCCESS
         - trigger:
             project: 'genesis-compass-deploy-virtual-cluster'
@@ -217,7 +229,7 @@
 
     publishers:
         - trigger:
-            project: 'genesis-compass-deploy-virtual'
+            project: 'genesis-compass-deploy-virtual-five'
             threshold: SUCCESS
         - trigger:
             project: 'genesis-compass-deploy-virtual-cluster'
@@ -354,7 +366,7 @@
             git-revision: true
             block: true
         - trigger-builds:
-          - project: 'genesis-compass-deploy-virtual'
+          - project: 'genesis-compass-deploy-virtual-five'
             git-revision: true
             block: false
         - trigger-builds:
@@ -430,26 +442,23 @@
         - 'compass-deploy'
 
 - job-template:
-    name: 'genesis-compass-deploy-virtual'
+    name: 'genesis-compass-deploy-virtual-{flavor}'
 
     project-type: freestyle
 
     disabled: false
 
-    node: compass-build-deploy-01
+    node: '{node}'
 
     parameters:
         - project-parameter:
             project: '{project}'
         - compass-parameter:
             installer: '{installer}'
-
-    scm:
-        - git-scm-url:
-            credentials-id: '{ssh-credentials}'
-            url: $GIT_BASE/$PROJECT
-            refspec: ''
-            branch: master
+        - string:
+            name: FLAVOR_CONF
+            default: '{conf}'
+            description: ""
 
     triggers:
         - pollscm: "H/2 * * * *"
@@ -461,59 +470,8 @@
         artifactNumToKeep: -1
 
     builders:
-        - 'compass-deploy-virtual'
-
-- job-template:
-    name: 'genesis-compass-deploy-virtual-cluster'
-
-    project-type: freestyle
-
-    disabled: false
-
-    node: compass-build-deploy-03
-
-    parameters:
-        - project-parameter:
-            project: '{project}'
-        - compass-parameter:
-            installer: '{installer}'
-
-
-    logrotate:
-        daysToKeep: 30
-        numToKeep: 10
-        artifactDaysToKeep: -1
-        artifactNumToKeep: -1
-
-    builders:
         - 'compass-ci-clean-workspace'
-        - 'compass-deploy-virtual-cluster'
-
-- job-template:
-    name: 'genesis-compass-deploy-virtual-cluster-odl'
-
-    project-type: freestyle
-
-    disabled: false
-
-    node: compass-build-deploy-04
-
-    parameters:
-        - project-parameter:
-            project: '{project}'
-        - compass-parameter:
-            installer: '{installer}'
-
-
-    logrotate:
-        daysToKeep: 30
-        numToKeep: 10
-        artifactDaysToKeep: -1
-        artifactNumToKeep: -1
-
-    builders:
-        - 'compass-ci-clean-workspace'
-        - 'compass-deploy-virtual-cluster'
+        - 'compass-deploy-virtual-flavor'
 
 ########################
 # parameter macros
@@ -578,7 +536,7 @@
             set -o errexit
             set -o nounset
             set -o pipefail
-            cd $WORKSPACE
+            cd $WORKSPACE/compass
             ./build/check_deb.sh $BUILD_REPO
 
 - builder:
@@ -612,7 +570,7 @@
             export OPNFV_ARTIFACT_VERSION=$(date -u +"%Y-%m-%d_%H-%M-%S")
 
             # start the build
-            cd $WORKSPACE/ci
+            cd $WORKSPACE/compass/ci
             ./build.sh -v $OPNFV_ARTIFACT_VERSION -c $CACHE_DIRECTORY $BUILD_DIRECTORY
 
             # list the build artifacts
@@ -677,7 +635,7 @@
             echo "Done!"
 
 - builder:
-    name: 'compass-deploy-virtual'
+    name: 'compass-deploy-virtual-flavor'
     builders:
         - shell: |
             #!/bin/bash
@@ -691,31 +649,7 @@
             echo
 
             cd $WORKSPACE/compass
-            ./ci/deploy.sh five
-            # ssh -o BatchMode=yes -o TCPKeepAlive=yes cideploy@10.118.34.205 ./cideploy.sh
-
-            echo
-            echo "--------------------------------------------------------"
-            echo "Done!"
-
-- builder:
-    name: 'compass-deploy-virtual-cluster'
-    builders:
-        - shell: |
-            #!/bin/bash
-            echo $PATH
-            set -o errexit
-            set -o nounset
-            set -o pipefail
-            export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-            echo $PATH
-            # log info to console
-            echo "Starting the deployment on virtual environment using $INSTALLER. This could take some time..."
-            echo "--------------------------------------------------------"
-            echo
-
-            cd $WORKSPACE/compass
-            ./ci/deploy.sh cluster
+            ./ci/deploy.sh $FLAVOR_CONF
             # ssh -o BatchMode=yes -o TCPKeepAlive=yes cideploy@10.118.34.205 ./cideploy.sh
 
             echo
@@ -804,5 +738,5 @@
 
             cd $WORKSPACE/..
             sudo rm $WORKSPACE -rf
-            git clone $GIT_BASE/compass-ci $WORKSPACE
+            git clone $GIT_BASE/$PROJECT  $WORKSPACE
 
