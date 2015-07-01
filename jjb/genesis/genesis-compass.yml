@@ -3,8 +3,8 @@
 
     name: genesis-compass
 
-    installer: 'compass'
-
+    installer:
+        - compass
     jobs:
         - 'genesis-compass-build-verify'
         - 'genesis-compass-merge'
@@ -41,6 +41,7 @@
 ########################
 # job templates
 ########################
+
 - job-template:
     name: 'genesis-compass-monitor-builder-repo'
     project-type: freestyle
@@ -275,7 +276,7 @@
 
     builders:
         - 'compass-build'
-        #- 'compass-workspace-cleanup'
+        - 'compass-workspace-cleanup'
 
 - job-template:
     name: 'genesis-compass-merge'
