@@ -27,7 +27,6 @@
                 - 'origin/{branch}'
             skip-tag: true
             wipe-workspace: true
-
 - scm:
     name: git-scm-url
     scm:
@@ -39,7 +38,6 @@
                 - 'origin/{branch}'
             skip-tag: true
             wipe-workspace: true
-
 
 - scm:
     name: gerrit-trigger-scm
