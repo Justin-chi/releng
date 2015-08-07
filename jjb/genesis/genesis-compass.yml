@@ -27,22 +27,21 @@
     flavor:
         - five:
             conf: 'five'
-            node: 'compass-build-deploy-03'
+            node: 'compass-deploy'
         - cluster:
             conf: 'cluster'
-            node: 'compass-build-deploy-01'
+            node: 'compass-deploy'
         - cluster_odl:
             conf: 'cluster'
-            node: 'compass-build-deploy-04'
-        - cluster_11:
-            conf: 'cluster'
-            node: 'compass-build-deploy-05'
+            node: 'compass-deploy'
+
 
     project: 'genesis'
 
 ########################
 # job templates
 ########################
+
 - job-template:
     name: 'genesis-compass-upload-iso'
     project-type: freestyle
@@ -70,7 +69,6 @@
         - 'compass-copy-artifact'
         - 'compass-upload-artifact'
 
-
 - job-template:
     name: 'genesis-compass-verify'
 
@@ -78,7 +76,7 @@
 
     disabled: false
 
-    node: compass-build-deploy-01
+    node: compass-build
 
     logrotate:
         daysToKeep: 30
@@ -110,6 +108,7 @@
         - 'compass-build'
         - 'compass-workspace-cleanup'
 
+
 - job-template:
     name: 'genesis-compass-merge'
 
@@ -119,7 +118,7 @@
 
     project-type: freestyle
 
-    node: compass-build-deploy-01
+    node: compass-build
 
     logrotate:
         daysToKeep: 30
@@ -169,7 +168,7 @@
 
     project-type: freestyle
 
-    node: compass-build-deploy-01
+    node: compass-deploy
 
     parameters:
         - project-parameter:
@@ -233,7 +232,7 @@
             credentials-id: '{ssh-credentials}'
             url: $GIT_BASE/$PROJECT
             refspec: ''
-            branch: master
+            branch: 'master'
 
     builders:
         - 'compass-build'
@@ -242,7 +241,7 @@
 
     publishers:
         - archive:
-            artifacts: '$BUILD_DIRECTORY/*.*'
+            artifacts: 'build_output/*.*'
             allow-empty: 'true'
             fingerprint: true
         - trigger:
@@ -288,7 +287,7 @@
 
     disabled: false
 
-    node: compass-build-deploy-01
+    node: compass-deploy-metal
 
     parameters:
         - project-parameter:
@@ -548,7 +547,7 @@
     builders:
         - copyartifact:
             projectName: "genesis-compass-build"
-            filter: "opnfv.iso"
+            filter: "opnfv-.iso, opnfv.properties"
             target: ./
             which-build: upstream-build
             optional: true
