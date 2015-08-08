@@ -7,7 +7,7 @@
         - huawei-build:
             node: 'compass-deploy'
             installer_type: 'compass'
-            installer_ip: '10.20.0.2'
+            installer_ip: '10.1.0.12'
     jobs:
         - 'genesis-compass-functest-{pod}'
         - 'set-functest-env-{pod}'
@@ -415,7 +415,7 @@
             description: "Override GIT_BASE"
 
 - parameter:
-    name: huawei-build
+    name: huawei-build 
     parameters:
         - string:
             name: GIT_BASE
