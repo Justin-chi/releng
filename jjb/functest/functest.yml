@@ -242,8 +242,8 @@
     builders:
         - 'functest-fetch-os-creds'
         - 'functest-all'
-        - 'functest-store-results'
-        - 'functest-cleanup'
+        #- 'functest-store-results'
+        #- 'functest-cleanup'
 
 - job-template:
     name: 'functest-daily-{stream}'
