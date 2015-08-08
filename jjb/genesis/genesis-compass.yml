@@ -213,7 +213,7 @@
 
     project-type: freestyle
 
-    node: compass-build-deploy-01 
+    node: compass-build 
 
     logrotate:
         daysToKeep: 30
@@ -318,7 +318,7 @@
 
     disabled: false
 
-    node: compass-build-deploy-01
+    node: compass-build
 
     logrotate:
         daysToKeep: 30
@@ -363,7 +363,7 @@
 
     disabled: false
 
-    node: compass-build-deploy-01
+    node: compass-build
 
     logrotate:
         daysToKeep: 30
@@ -414,7 +414,7 @@
 
     disabled: false
 
-    node: compass-build-deploy-01
+    node: compass-build
 
     logrotate:
         daysToKeep: 30
@@ -465,7 +465,7 @@
 
     disabled: false
 
-    node: compass-build-deploy-01
+    node: compass-build
 
     logrotate:
         daysToKeep: 30
@@ -537,7 +537,7 @@
             description: "URL to Google Storage."
         - string:
             name: INTERNAL_REPO
-            default: "root@192.168.121.12:~/kun/artifacts"
+            default: "root@192.168.127.11:~/xh/work/build/work"
             description: "Artifact Repository"
 ########################
 # builder macros
@@ -609,8 +609,11 @@
             # start the build
             cd $WORKSPACE/$INSTALLER/ci
             #./build.sh -v "" -c file://$CACHE_DIRECTORY $BUILD_DIRECTORY
+            ./build.sh 
             mkdir $BUILD_DIRECTORY
-            echo "Hello world!" > $BUILD_DIRECTORY/opnfv-.iso
+            mv $WORKSPACE/$INSTALLER/ci/work/compass.iso $BUILD_DIRECTORY/opnfv-.iso
+            
+            #echo "Hello world!" > $BUILD_DIRECTORY/opnfv-.iso
 
             # list the build artifacts
             ls -al $BUILD_DIRECTORY
@@ -624,7 +627,9 @@
                 echo "OPNFV_ARTIFACT_MD5SUM=$(md5sum $BUILD_DIRECTORY/opnfv-.iso | cut -d' ' -f1)"
                 echo "OPNFV_BUILD_URL=$BUILD_URL"
             ) > $BUILD_DIRECTORY/opnfv.properties
-
+            scp $BUILD_DIRECTORY/opnfv-.iso $INTERNAL_REPO/
+            scp $BUILD_DIRECTORY/opnfv.properties $INTERNAL_REPO/
+            scp $BUILD_DIRECTORY/opnfv-.iso $INTERNAL_REPO/opnfv-$OPNFV_ARTIFACT_VERSION.iso
             echo
             echo "--------------------------------------------------------"
             echo "Done!"
@@ -761,7 +766,7 @@
             set -o pipefail
 
             # delete everything that is in $WORKSPACE
-            /bin/rm -rf $WORKSPACE
+            #/bin/rm -rf $WORKSPACE
 
 - builder:
     name: 'compass-ci-preclean-workspace'
