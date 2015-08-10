@@ -137,10 +137,9 @@ elif [ "$installer_type" == "compass" ]; then
     fi
 
     info "Fetching rc file from controller $controller_ip..."
-    #sshpass -p root ssh 2>/dev/null $ssh_options root@${installer_ip} \
-    #    "scp $ssh_options ${controller_ip}:/opt/admin-openrc.sh ." &> /dev/null
-    info "scp admin-openrc.sh: $dest_path"
-    sshpass -p root scp 2>/dev/null $ssh_options root@${controller_ip}:/opt/admin-openrc.sh $dest_path &> /dev/null
+    sshpass -p root ssh 2>/dev/null $ssh_options root@${installer_ip} \
+        "scp $ssh_options ${controller_ip}:/opt/admin-openrc.sh ." &> /dev/null
+    sshpass -p root scp 2>/dev/null $ssh_options root@${installer_ip}:~/admin-openrc.sh $dest_path &> /dev/null
     echo 'export OS_REGION_NAME=regionOne' >> $dest_path
 
     info "This file contains the mgmt keystone API, we need the public one for our rc file"
