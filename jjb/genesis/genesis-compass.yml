@@ -241,7 +241,7 @@
 
     publishers:
         - archive:
-            artifacts: 'build_output/*.*'
+            artifacts: '$BUILD_DIRECTORY/*.*'
             allow-empty: 'true'
             fingerprint: true
         - trigger:
@@ -521,7 +521,7 @@
             description: "Installer to use."
         - string:
             name: BUILD_DIRECTORY
-            default: $WORKSPACE/build_output
+            default: build_output
             description: "Directory where the build artifact will be located upon the completion of the build."
         - string:
             name: CACHE_DIRECTORY
@@ -547,7 +547,7 @@
     builders:
         - copyartifact:
             projectName: "genesis-compass-build"
-            filter: "opnfv-.iso, opnfv.properties"
+            filter: "$BUILD_DIRECTORY/compass.iso, $BUILD_DIRECTORY/opnfv.properties"
             target: ./
             which-build: upstream-build
             optional: true
@@ -608,15 +608,12 @@
 
             # start the build
             cd $WORKSPACE/$INSTALLER/ci
-            #./build.sh -v "" -c file://$CACHE_DIRECTORY $BUILD_DIRECTORY
             ./build.sh 
-            mkdir $BUILD_DIRECTORY
-            mv $WORKSPACE/$INSTALLER/ci/work/compass.iso $BUILD_DIRECTORY/opnfv-.iso
+            mkdir $WORKSPACE/$BUILD_DIRECTORY
+            mv $WORKSPACE/$INSTALLER/ci/work/compass.iso $WORKSPACE/$BUILD_DIRECTORY/
             
-            #echo "Hello world!" > $BUILD_DIRECTORY/opnfv-.iso
-
             # list the build artifacts
-            ls -al $BUILD_DIRECTORY
+            ls -al $WORKSPACE/$BUILD_DIRECTORY
 
             # save information regarding artifact into file
             (
@@ -624,12 +621,9 @@
                 echo "OPNFV_GIT_URL=$(git config --get remote.origin.url)"
                 echo "OPNFV_GIT_SHA1=$(git rev-parse HEAD)"
                 echo "OPNFV_ARTIFACT_URL=$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso"
-                echo "OPNFV_ARTIFACT_MD5SUM=$(md5sum $BUILD_DIRECTORY/opnfv-.iso | cut -d' ' -f1)"
+                echo "OPNFV_ARTIFACT_MD5SUM=$(md5sum $WORKSPACE/$BUILD_DIRECTORY/compass.iso | cut -d' ' -f1)"
                 echo "OPNFV_BUILD_URL=$BUILD_URL"
-            ) > $BUILD_DIRECTORY/opnfv.properties
-            scp $BUILD_DIRECTORY/opnfv-.iso $INTERNAL_REPO/
-            scp $BUILD_DIRECTORY/opnfv.properties $INTERNAL_REPO/
-            scp $BUILD_DIRECTORY/opnfv-.iso $INTERNAL_REPO/opnfv-$OPNFV_ARTIFACT_VERSION.iso
+            ) > $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties
             echo
             echo "--------------------------------------------------------"
             echo "Done!"
@@ -709,12 +703,16 @@
             echo "Uploading the $INSTALLER artifact. This could take some time..."
             echo "--------------------------------------------------------"
             echo
-
+ 
             # source the opnfv.properties to get ARTIFACT_VERSION
             source $WORKSPACE/opnfv.properties
 
+            scp $WORKSPACE/compass.iso $INTERNAL_REPO/
+            scp $WORKSPACE/opnfv.properties $INTERNAL_REPO/
+            scp $WORKSPACE/compass.iso $INTERNAL_REPO/opnfv-$OPNFV_ARTIFACT_VERSION.iso
+
             # upload artifact and additional files to google storage
-            gsutil cp $WORKSPACE/opnfv-.iso gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso > gsutil.iso.log 2>&1
+            gsutil cp $WORKSPACE/compass.iso gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso > gsutil.iso.log 2>&1
             gsutil cp $WORKSPACE/opnfv.properties gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.properties > gsutil.properties.log 2>&1
             gsutil cp $WORKSPACE/opnfv.properties gs://$GS_URL/latest.properties > gsutil.latest.log 2>&1
 
