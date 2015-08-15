@@ -202,10 +202,16 @@
 
     publishers:
         - trigger:
+             project: 'compass-build'
+             threshold: SUCCESS
+        - trigger:
             project: 'compass-deploy-virtual-five'
             threshold: SUCCESS
         - trigger:
             project: 'compass-deploy-virtual-cluster'
+            threshold: SUCCESS
+        - trigger:
+            project: 'compass-functest-huawei-build'
             threshold: SUCCESS
 
 - job-template:
