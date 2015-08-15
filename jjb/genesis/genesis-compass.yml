@@ -3,8 +3,8 @@
 
     name: compass
 
-    installer: 'compass'
-
+    installer:
+        - compass
     jobs:
         - 'compass-verify'
         - 'compass-upload-iso'
@@ -315,8 +315,13 @@
         artifactNumToKeep: -1
 
     builders:
+<<<<<<< HEAD
+        - 'compass-build'
+        - 'compass-workspace-cleanup'
+=======
         - 'compass-download-artifact'
         - 'compass-deploy'
+>>>>>>> 33096f25217c6e3e2cffc1fb31e66cd25bb52c55
 
 - job-template:
     name: 'compass-monitor-builder-repo'
