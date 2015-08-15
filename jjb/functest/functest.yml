@@ -3,21 +3,23 @@
 ###################################
 - project:
     name: functest
-
     pod:
-        - 'huawei'
+        - huawei-build:
+            node: 'compass-deploy'
+            installer_type: 'compass'
+            installer_ip: '10.1.0.12'
     jobs:
-        - 'functest-{pod}-{stream}'
-#        - 'set-functest-env-{pod}'
-#        - 'clean-functest-env-{pod}'
-#        - 'functest-openstack-bench-test-{pod}'
-#        - 'functest-openstack-tempest-smoke-test-{pod}'
-#        - 'functest-odl-test-{pod}'
-#        - 'functest-vims-test-{pod}'
-#        - 'functest-vping-test-{pod}'
-#        - 'functest-daily-{stream}'
-#        - 'functest-merge'
-#        - 'functest-verify-{stream}'
+        - 'genesis-compass-functest-{pod}'
+        - 'set-functest-env-{pod}'
+        - 'clean-functest-env-{pod}'
+        - 'functest-openstack-bench-test-{pod}'
+        - 'functest-openstack-tempest-smoke-test-{pod}'
+        - 'functest-odl-test-{pod}'
+        - 'functest-vims-test-{pod}'
+        - 'functest-vping-test-{pod}'
+        - 'functest-daily-{stream}'
+        - 'functest-merge-{stream}'
+        - 'functest-verify-{stream}'
 
     # stream:    branch with - in place of / (eg. stable-arno)
     # branch:    branch (eg. stable/arno)
@@ -54,7 +56,12 @@
 
             echo "Functest: prepare Functest environment"
             mkdir -p $HOME/functest/
-            source $HOME/functest/opnfv-openrc.sh
+            # source openstack vars
+            if [[ ! -f $HOME/opnfv-openrc.sh ]]; then
+                echo "Unable to access file $HOME/opnfv-openrc.sh"
+                exit 1
+            fi
+            source $HOME/opnfv-openrc.sh
 
             # WORKSPACE is the root of the functest repo
             # go into WORKSPACE where the functest repo is cloned
@@ -63,7 +70,7 @@
             # prepare
             echo "Functest: prepare Functest environment"
             python $WORKSPACE/testcases/config_functest.py --debug $WORKSPACE/ start
-            
+
 - job-template:
     name: clean-functest-env-{pod}
 
@@ -201,23 +208,30 @@
             python $WORKSPACE/testcases/vPing/CI/libraries/vPing.py --debug $WORKSPACE/
 
 - job-template:
-    name: functest-{pod}-{stream}
+    name: genesis-compass-functest-{pod}
 
     project-type: freestyle
 
-    node: 'compass-build-deploy-02'
+    node: '{pod}'
 
     parameters:
         - project-parameter:
             project: '{project}'
-        - functest-parameter:
-            project: '{project}'
-            gs-pathname: '{gs-pathname}'
+        - string:
+            name: INSTALLER_TYPE
+            default: '{installer_type}'
+            description: "Installer name that is used for deployment."
+        - string:
+            name: INSTALLER_IP
+            default: '{installer_ip}'
+            description: "Installer IP."
+        - '{pod}'
+
     scm:
         - git-scm:
             credentials-id: '{ssh-credentials}'
             refspec: ''
-            branch: '{branch}'
+            branch: master
 
     logrotate:
         daysToKeep: 30
@@ -226,7 +240,10 @@
         artifactNumToKeep: -1
 
     builders:
+        - 'functest-fetch-os-creds'
         - 'functest-all'
+        #- 'functest-store-results'
+        #- 'functest-cleanup'
 
 - job-template:
     name: 'functest-daily-{stream}'
@@ -272,7 +289,7 @@
 
     builders:
         - shell:
-            !include-raw docu-build.sh
+            !include-raw ../opnfvdocs/docu-build.sh
 
     postbuilders:
         - test-macro
@@ -326,10 +343,10 @@
 
     builders:
         - shell:
-            !include-raw docu-build.sh
+            !include-raw ../opnfvdocs/docu-build.sh
 
 - job-template:
-    name: 'functest-merge'
+    name: 'functest-merge-{stream}'
 
     node: master
 
@@ -349,7 +366,7 @@
         - project-parameter:
             project: '{project}'
         - gerrit-parameter:
-            branch: 'master'
+            branch: '{branch}'
 
     scm:
         - gerrit-trigger-scm:
@@ -372,11 +389,11 @@
                 project-pattern: 'functest'
                 branches:
                     - branch-compare-type: 'ANT'
-                      branch-pattern: '**/master'
+                      branch-pattern: '**/{branch}'
 
     builders:
         - shell:
-            !include-raw docu-build.sh
+            !include-raw ../opnfvdocs/docu-build.sh
 
 ########################
 # parameter macros
@@ -388,10 +405,38 @@
             name: GS_PATHNAME
             default: '{gs-pathname}'
             description: "Version directory where the opnfv documents will be stored in gs repository"
+
+- parameter:
+    name: orange-build
+    parameters:
         - string:
             name: GIT_BASE
-            default: https://gerrit.opnfv.org/gerrit/{project} 
-            description: "Used for overriding the GIT URL coming from Global Jenkins configuration in case if the stuff is done on none-LF HW."
+            default: https://gerrit.opnfv.org/gerrit/$PROJECT
+            description: "Override GIT_BASE"
+
+- parameter:
+    name: huawei-build 
+    parameters:
+        - string:
+            name: GIT_BASE
+            default: https://gerrit.opnfv.org/gerrit/$PROJECT
+            description: "Override GIT_BASE"
+
+- parameter:
+    name: opnfv-jump-1
+    parameters:
+        - string:
+            name: GIT_BASE
+            default: ssh://gerrit.opnfv.org:29418/$PROJECT
+            description: "Override GIT_BASE"
+
+- parameter:
+    name: opnfv-jump-2
+    parameters:
+        - string:
+            name: GIT_BASE
+            default: ssh://gerrit.opnfv.org:29418/$PROJECT
+            description: "Override GIT_BASE"
 ########################
 # trigger macros
 ########################
@@ -405,6 +450,9 @@
     triggers:
         - pollscm: "H 21 * * *"
 
+########################
+# builder macros
+########################
 # macros
 - builder:
     name: functest-all
@@ -447,13 +495,29 @@
             mkdir -p $HOME/functest/results
 
             # save ODL results
-            cp -Rf $WORSPACE/testcases/Controllers/ODL/CI/logs $HOME/functest/results/ODL
+            cp -Rf $WORKSPACE/testcases/Controllers/ODL/CI/logs $HOME/functest/results/ODL
 
             # save tempest.conf for further troubleshooting
             cp $HOME/.rally/tempest/for-deployment-*/tempest.conf $HOME/functest/results
-            
-            # push results to artifact
+
+- builder:
+    name: functest-store-results
+    builders:
+        - shell:
             !include-raw res-build.sh
+
+- builder:
+    name: functest-cleanup
+    builders:
+        - shell: |
+            #!/bin/bash
+            set +e
 
             # cleanup
             python $WORKSPACE/testcases/config_functest.py --debug --force $WORKSPACE/ clean
+
+- builder:
+    name: functest-fetch-os-creds
+    builders:
+        - shell:
+            !include-raw ../../utils/fetch_os_creds.sh
