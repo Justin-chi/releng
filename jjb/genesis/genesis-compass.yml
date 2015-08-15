@@ -3,21 +3,19 @@
 
     name: compass
 
-    installer:
-        - compass
+    installer: compass
+
     jobs:
         - 'compass-verify'
         - 'compass-upload-iso'
         - 'compass-merge'
         - 'compass-daily-{stream}'
         - 'compass-build'
-
         - 'compass-deploy-virtual-{flavor}'
-        - 'compass-deploy'
+        - 'compass-deploy-baremetal'
         - 'compass-upstream-core-scm'
         - 'compass-upstream-adapter-scm'
         - 'compass-upstream-install-scm'
-        - 'compass-monitor-builder-repo'
     # stream:    branch with - in place of / (eg. stable-helium)
     # branch:    branch (eg. stable/helium)
     stream:
@@ -202,8 +200,8 @@
 
     publishers:
         - trigger:
-             project: 'compass-build'
-             threshold: SUCCESS
+            project: 'compass-build'
+            threshold: SUCCESS
         - trigger:
             project: 'compass-deploy-virtual-five'
             threshold: SUCCESS
@@ -287,13 +285,13 @@
         - 'compass-deploy-virtual-flavor'
 
 - job-template:
-    name: 'compass-deploy'
+    name: 'compass-deploy-baremetal'
 
     project-type: freestyle
 
     disabled: false
 
-    node: compass-deploy-metal
+    node: compass-deploy
 
     parameters:
         - project-parameter:
@@ -315,13 +313,10 @@
         artifactNumToKeep: -1
 
     builders:
-<<<<<<< HEAD
         - 'compass-build'
         - 'compass-workspace-cleanup'
-=======
         - 'compass-download-artifact'
         - 'compass-deploy'
->>>>>>> 33096f25217c6e3e2cffc1fb31e66cd25bb52c55
 
 - job-template:
     name: 'compass-monitor-builder-repo'
@@ -405,17 +400,11 @@
     builders:
         - shell: |
             echo "Hello world!"
-            echo "compass-deploy-virtual job will be triggered!"
+            echo "compass-build job will be triggered!"
             
     publishers:
         - trigger:
-            project: 'compass-deploy-virtual-five'
-            threshold: SUCCESS
-        - trigger:
-            project: 'compass-deploy-virtual-cluster'
-            threshold: SUCCESS
-        - trigger:
-            project: 'compass-deploy-virtual-cluster-odl'
+            project: 'compass-verify'
             threshold: SUCCESS
 
 - job-template:
@@ -460,13 +449,7 @@
 
     publishers:
         - trigger:
-            project: 'compass-deploy-virtual-five'
-            threshold: SUCCESS
-        - trigger:
-            project: 'compass-deploy-virtual-cluster'
-            threshold: SUCCESS
-        - trigger:
-            project: 'compass-deploy-virtual-cluster-odl'
+            project: 'compass-verify'
             threshold: SUCCESS
 
 - job-template:
@@ -507,17 +490,11 @@
     builders:
         - shell: |
             echo "Hello world!"
-            echo "compass-deploy-virtual job will be triggered!"
+            echo "compass-build job will be triggered!"
 
     publishers:
         - trigger:
-            project: 'compass-deploy-virtual-five'
-            threshold: SUCCESS
-        - trigger:
-            project: 'compass-deploy-virtual-cluster'
-            threshold: SUCCESS
-        - trigger:
-            project: 'compass-deploy-virtual-cluster-odl'
+            project: 'compass-verify'
             threshold: SUCCESS
 
 ########################
