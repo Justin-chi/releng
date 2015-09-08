@@ -25,14 +25,14 @@
 
     flavor:
         - five:
-            conf: 'five'
-            node: 'compass-deploy'
+            conf: 'virtual_five'
+            node: 'huawei-build'
         - cluster:
-            conf: 'cluster'
-            node: 'compass-deploy'
+            conf: 'virtual_cluster'
+            node: 'huawei-build'
         - cluster_odl:
-            conf: 'cluster'
-            node: 'compass-deploy'
+            conf: 'virtual_cluster'
+            node: 'huawei-build'
 
     project: 'compass4nfv'
 
@@ -175,7 +175,7 @@
 
     project-type: freestyle
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -276,7 +276,7 @@
 
     project-type: freestyle
 
-    node: compass-build 
+    node: compass-deploy 
 
     logrotate:
         daysToKeep: 30
@@ -387,7 +387,7 @@
 
     disabled: false
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -432,7 +432,7 @@
 
     disabled: false
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -477,7 +477,7 @@
 
     disabled: false
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -522,7 +522,7 @@
 
     disabled: false
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -576,7 +576,7 @@
             description: "Directory where the build artifact will be located upon the completion of the build."
         - string:
             name: CACHE_DIRECTORY
-            default: $WORKSPACE
+            default: $HOME/opnfv/cache/
             description: "Directory where the cache to be used during the build is located."
         - string:
             name: GIT_BASE
@@ -597,8 +597,6 @@
         - string:
             name: ISO_DIRECTORY
             default: "http://58.251.166.184:9999/"
-
-
 
 ########################
 # builder macros
@@ -670,8 +668,7 @@
             # start the build
             cd $WORKSPACE/
             mkdir $WORKSPACE/$BUILD_DIRECTORY
-            ./build.sh  --iso-dir $WORKSPACE/$BUILD_DIRECTORY/ --iso-name compass.iso
-
+            ./build.sh  --iso-dir $WORKSPACE/$BUILD_DIRECTORY/ --iso-name compass.iso -c $CACHE_DIRECTORY
             
             # list the build artifacts
             ls -al $WORKSPACE/$BUILD_DIRECTORY
@@ -703,6 +700,7 @@
             echo "--------------------------------------------------------"
             echo
 
+            export ISO_URL=$WORKSPACE/$BUILD_DIRECTORY/compass.iso
             cd $WORKSPACE
             ./deploy.sh $FLAVOR_CONF
 
@@ -716,8 +714,7 @@
         - shell: |
             #!/bin/bash
             echo "download iso from internal repo"
-            curl -s -o $WORKSPACE/compass.iso $ISO_DIRECTORY/compass.iso > download.iso.log 2>&1
-            export ISO_URL=$WORKSPACE/compass.iso
+            curl -s -o $WORKSPACE/$BUILD_DIRECTORY/compass.iso $ISO_DIRECTORY/compass.iso > download.iso.log 2>&1
 
 - builder:
     name: 'compass-upload-artifact'
@@ -734,16 +731,16 @@
             echo
  
             # source the opnfv.properties to get ARTIFACT_VERSION
-            source $WORKSPACE/opnfv.properties
+            source $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties
 
-            scp $WORKSPACE/compass.iso $INTERNAL_REPO_XA/
-            scp $WORKSPACE/opnfv.properties $INTERNAL_REPO_XA/
-            scp $WORKSPACE/compass.iso $INTERNAL_REPO_XA/opnfv-$OPNFV_ARTIFACT_VERSION.iso
+            scp $WORKSPACE/$BUILD_DIRECTORY/compass.iso $INTERNAL_REPO_XA/
+            scp $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties $INTERNAL_REPO_XA/
+            scp $WORKSPACE/$BUILD_DIRECTORY/compass.iso $INTERNAL_REPO_XA/opnfv-$OPNFV_ARTIFACT_VERSION.iso
 
             # upload artifact and additional files to google storage
-            gsutil cp $WORKSPACE/compass.iso gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso > gsutil.iso.log 2>&1
-            gsutil cp $WORKSPACE/opnfv.properties gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.properties > gsutil.properties.log 2>&1
-            gsutil cp $WORKSPACE/opnfv.properties gs://$GS_URL/latest.properties > gsutil.latest.log 2>&1
+            gsutil cp $WORKSPACE/$BUILD_DIRECTORY/compass.iso gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso > gsutil.iso.log 2>&1
+            gsutil cp $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.properties > gsutil.properties.log 2>&1
+            gsutil cp $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties gs://$GS_URL/latest.properties > gsutil.latest.log 2>&1
 
             echo
             echo "--------------------------------------------------------"
