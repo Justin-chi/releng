@@ -25,14 +25,14 @@
 
     flavor:
         - five:
-            conf: 'five'
-            node: 'compass-deploy'
+            conf: 'virtual_five'
+            node: 'huawei-build'
         - cluster:
-            conf: 'cluster'
-            node: 'compass-deploy'
+            conf: 'virtual_cluster'
+            node: 'huawei-build'
         - cluster_odl:
-            conf: 'cluster'
-            node: 'compass-deploy'
+            conf: 'virtual_cluster'
+            node: 'huawei-build'
 
     project: 'compass4nfv'
 
@@ -129,7 +129,7 @@
 
     disabled: false
 
-    node: compass-deploy
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -144,7 +144,7 @@
             installer: '{installer}'
         - string:
             name: FLAVOR_CONF
-            default: 'cluster'
+            default: 'virtual_cluster'
             description: ""
     scm:
         - 'git-scm-url':
@@ -175,7 +175,7 @@
 
     project-type: freestyle
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -207,15 +207,10 @@
                     comment-contains-value: 'remerge'
             projects:
               - project-compare-type: 'ANT'
-                project-pattern: 'genesis'
+                project-pattern: '{project}'
                 branches:
                     - branch-compare-type: 'ANT'
                       branch-pattern: '**/master'
-                file-paths:
-                  - compare-type: ANT
-                    pattern: 'common/**'
-                  - compare-type: ANT
-                    pattern: 'compass/**'
 
     builders:
         - 'compass-merge'
@@ -225,7 +220,7 @@
 
     project-type: freestyle
 
-    node: compass-deploy
+    node: huawei-build
 
     parameters:
         - project-parameter:
@@ -241,7 +236,7 @@
             branch: master
 
     triggers:
-        - timed: '@midnight'
+        - pollscm: '@midnight'
 
     logrotate:
         daysToKeep: 30
@@ -276,7 +271,7 @@
 
     project-type: freestyle
 
-    node: compass-build 
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -299,8 +294,6 @@
 
     builders:
         - 'compass-build'
-        - 'compass-deploy-virtual-flavor'
-        - 'compass-workspace-cleanup'
 
     publishers:
         - archive:
@@ -387,7 +380,7 @@
 
     disabled: false
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -432,7 +425,7 @@
 
     disabled: false
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -477,7 +470,7 @@
 
     disabled: false
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -522,7 +515,7 @@
 
     disabled: false
 
-    node: compass-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
@@ -576,7 +569,7 @@
             description: "Directory where the build artifact will be located upon the completion of the build."
         - string:
             name: CACHE_DIRECTORY
-            default: $WORKSPACE
+            default: $HOME/opnfv/cache/
             description: "Directory where the cache to be used during the build is located."
         - string:
             name: GIT_BASE
@@ -596,9 +589,7 @@
             description: "Artifact Repository"
         - string:
             name: ISO_DIRECTORY
-            default: "http://58.251.166.184:9999/"
-
-
+            default: "http://192.168.127.11:9999/"
 
 ########################
 # builder macros
@@ -615,12 +606,6 @@
             flatten: true
             parameter-filters: PUBLISH=true
 
-- builder:
-    name: compass-verify
-    builders:
-        - shell: |
-            #!/bin/bash
-            echo "Hello World!"
 
 - builder:
     name: compass-merge
@@ -629,23 +614,7 @@
             #!/bin/bash
             echo "Hello World!"
 
-- builder:
-    name: compass-daily-master
-    builders:
-        - shell: |
-            #!/bin/bash
-            echo "Hello World!"
 
-- builder:
-    name: 'compass-monitor'
-    builders:
-        - shell: |
-            #!/bin/bash
-            set -o errexit
-            set -o nounset
-            set -o pipefail
-            cd $WORKSPACE/compass
-            ./build/check_deb.sh $BUILD_REPO
 
 - builder:
     name: 'compass-build'
@@ -670,8 +639,7 @@
             # start the build
             cd $WORKSPACE/
             mkdir $WORKSPACE/$BUILD_DIRECTORY
-            ./build.sh  --iso-dir $WORKSPACE/$BUILD_DIRECTORY/ --iso-name compass.iso
-
+            ./build.sh  --iso-dir $WORKSPACE/$BUILD_DIRECTORY/ --iso-name compass.iso -c $CACHE_DIRECTORY
             
             # list the build artifacts
             ls -al $WORKSPACE/$BUILD_DIRECTORY
@@ -703,6 +671,7 @@
             echo "--------------------------------------------------------"
             echo
 
+            export ISO_URL=file://$WORKSPACE/$BUILD_DIRECTORY/compass.iso
             cd $WORKSPACE
             ./deploy.sh $FLAVOR_CONF
 
@@ -716,8 +685,7 @@
         - shell: |
             #!/bin/bash
             echo "download iso from internal repo"
-            curl -s -o $WORKSPACE/compass.iso $ISO_DIRECTORY/compass.iso > download.iso.log 2>&1
-            export ISO_URL=$WORKSPACE/compass.iso
+            curl -s -o $WORKSPACE/$BUILD_DIRECTORY/compass.iso $ISO_DIRECTORY/compass.iso > download.iso.log 2>&1
 
 - builder:
     name: 'compass-upload-artifact'
@@ -734,16 +702,16 @@
             echo
  
             # source the opnfv.properties to get ARTIFACT_VERSION
-            source $WORKSPACE/opnfv.properties
+            source $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties
 
-            scp $WORKSPACE/compass.iso $INTERNAL_REPO_XA/
-            scp $WORKSPACE/opnfv.properties $INTERNAL_REPO_XA/
-            scp $WORKSPACE/compass.iso $INTERNAL_REPO_XA/opnfv-$OPNFV_ARTIFACT_VERSION.iso
+            scp $WORKSPACE/$BUILD_DIRECTORY/compass.iso $INTERNAL_REPO_XA/
+            scp $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties $INTERNAL_REPO_XA/
+            scp $WORKSPACE/$BUILD_DIRECTORY/compass.iso $INTERNAL_REPO_XA/opnfv-$OPNFV_ARTIFACT_VERSION.iso
 
             # upload artifact and additional files to google storage
-            gsutil cp $WORKSPACE/compass.iso gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso > gsutil.iso.log 2>&1
-            gsutil cp $WORKSPACE/opnfv.properties gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.properties > gsutil.properties.log 2>&1
-            gsutil cp $WORKSPACE/opnfv.properties gs://$GS_URL/latest.properties > gsutil.latest.log 2>&1
+            gsutil cp $WORKSPACE/$BUILD_DIRECTORY/compass.iso gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso > gsutil.iso.log 2>&1
+            gsutil cp $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.properties > gsutil.properties.log 2>&1
+            gsutil cp $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties gs://$GS_URL/latest.properties > gsutil.latest.log 2>&1
 
             echo
             echo "--------------------------------------------------------"
