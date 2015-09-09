@@ -9,7 +9,7 @@
         - 'compass-verify'
         - 'compass-verify-from-gerrit'
         - 'compass-upload-iso'
-        - 'compass-merge'
+        #- 'compass-merge'
         - 'compass-daily-{stream}'
         - 'compass-build'
         - 'compass-deploy-virtual-{flavor}'
@@ -64,7 +64,6 @@
             user: '{ssh-credentials}'
 
     builders:
-        - 'compass-copy-artifact-from-upstream-build'
         - 'compass-upload-artifact'
 
 - job-template:
@@ -245,26 +244,32 @@
         artifactNumToKeep: -1
 
     builders:
-        #- 'compass-build'
-        #- 'compass-upload-artifact'
-        #- 'compass-workspace-cleanup'
-        - shell: |
-            echo "Hello world!"
-            echo "compass-deploy-virtual job will be triggered!"
-
-    publishers:
-        - trigger:
-            project: 'compass-build'
-            threshold: SUCCESS
-        - trigger:
-            project: 'compass-deploy-virtual-cluster'
-            threshold: SUCCESS
-        - trigger:
-            project: 'compass-upload-artifact'
-            threshold: SUCCESS
-        - trigger:
-            project: 'compass-functest-huawei-build'
-            threshold: SUCCESS
+        - trigger-builds:
+          - project: 'compass-build'
+            git-revision: true
+            block: true
+        - trigger-builds:
+          - project: 'compass-deploy-virtual-cluster'
+            git-revision: true
+            block: true
+        - trigger-builds:
+          - project: 'compass-upload-iso'
+            git-revision: true
+            block: true
+        - trigger-builds:
+          - project: 'compass-functest-huawei-build'
+            block: true
+            block-thresholds:
+                build-step-failure-threshold: 'never'
+                failure-threshold: 'never'
+                unstable-threshold: 'FAILURE'
+        - trigger-builds:
+          - project: 'compass-functest-huawei-build'
+            block: true
+            block-thresholds:
+                build-step-failure-threshold: 'never'
+                failure-threshold: 'never'
+                unstable-threshold: 'FAILURE'
 
 - job-template:
     name: 'compass-build'
@@ -294,15 +299,6 @@
 
     builders:
         - 'compass-build'
-
-    publishers:
-        - archive:
-            artifacts: '$BUILD_DIRECTORY/*.*'
-            allow-empty: 'true'
-            fingerprint: true
-        - trigger:
-            project: 'compass-upload-iso'
-            threshold: SUCCESS
 
 - job-template:
     name: 'compass-deploy-virtual-{flavor}'
@@ -334,7 +330,7 @@
 
     builders:
         - 'compass-ci-preclean-workspace'
-        - 'compass-download-artifact-from-internal-repo'
+        - 'compass-download-artifact-from-local-cache'
         - 'compass-deploy-virtual-flavor'
 
 - job-template:
@@ -371,7 +367,7 @@
 
     builders:
         - 'compass-workspace-cleanup'
-        - 'compass-download-artifact-from-internal-repo'
+        - 'compass-download-artifact-from-local-cache'
         - 'compass-deploy-virtual-flavor'
 
 - job-template:
@@ -638,11 +634,10 @@
 
             # start the build
             cd $WORKSPACE/
-            mkdir $WORKSPACE/$BUILD_DIRECTORY
-            ./build.sh  --iso-dir $WORKSPACE/$BUILD_DIRECTORY/ --iso-name compass.iso -c $CACHE_DIRECTORY
+            ./build.sh  --iso-dir $CACHE_DIRECTORY/ --iso-name compass.iso -c $CACHE_DIRECTORY
             
             # list the build artifacts
-            ls -al $WORKSPACE/$BUILD_DIRECTORY
+            ls -al $CACHE_DIRECTORY
 
             # save information regarding artifact into file
             (
@@ -650,12 +645,14 @@
                 echo "OPNFV_GIT_URL=$(git config --get remote.origin.url)"
                 echo "OPNFV_GIT_SHA1=$(git rev-parse HEAD)"
                 echo "OPNFV_ARTIFACT_URL=$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso"
-                echo "OPNFV_ARTIFACT_MD5SUM=$(md5sum $WORKSPACE/$BUILD_DIRECTORY/compass.iso | cut -d' ' -f1)"
+                echo "OPNFV_ARTIFACT_MD5SUM=$(md5sum $CACHE_DIRECTORY/compass.iso | cut -d' ' -f1)"
                 echo "OPNFV_BUILD_URL=$BUILD_URL"
-            ) > $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties
+            ) > $CACHE_DIRECTORY/opnfv.properties
             echo
             echo "--------------------------------------------------------"
             echo "Done!"
+
+            sudo rm -rf $WORKSPACE/work
 
 - builder:
     name: 'compass-deploy-virtual-flavor'
@@ -671,7 +668,7 @@
             echo "--------------------------------------------------------"
             echo
 
-            export ISO_URL=file://$WORKSPACE/$BUILD_DIRECTORY/compass.iso
+            export ISO_URL=file://$CACHE_DIRECTORY/compass.iso
             cd $WORKSPACE
             ./deploy.sh $FLAVOR_CONF
 
@@ -680,12 +677,12 @@
             echo "Done!"
 
 - builder:
-    name: 'compass-download-artifact-from-internal-repo'
+    name: 'compass-download-artifact-from-local-cache'
     builders:
         - shell: |
             #!/bin/bash
             echo "download iso from internal repo"
-            curl -s -o $WORKSPACE/$BUILD_DIRECTORY/compass.iso $ISO_DIRECTORY/compass.iso > download.iso.log 2>&1
+            curl -s -o file://$CACHE_DIRECTORY/compass.iso $ISO_DIRECTORY/compass.iso > download.iso.log 2>&1
 
 - builder:
     name: 'compass-upload-artifact'
@@ -702,16 +699,38 @@
             echo
  
             # source the opnfv.properties to get ARTIFACT_VERSION
-            source $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties
-
-            scp $WORKSPACE/$BUILD_DIRECTORY/compass.iso $INTERNAL_REPO_XA/
-            scp $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties $INTERNAL_REPO_XA/
-            scp $WORKSPACE/$BUILD_DIRECTORY/compass.iso $INTERNAL_REPO_XA/opnfv-$OPNFV_ARTIFACT_VERSION.iso
+            source $CACHE_DIRECTORY/opnfv.properties
 
             # upload artifact and additional files to google storage
-            gsutil cp $WORKSPACE/$BUILD_DIRECTORY/compass.iso gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso > gsutil.iso.log 2>&1
-            gsutil cp $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.properties > gsutil.properties.log 2>&1
-            gsutil cp $WORKSPACE/$BUILD_DIRECTORY/opnfv.properties gs://$GS_URL/latest.properties > gsutil.latest.log 2>&1
+            gsutil cp $CACHE_DIRECTORY/compass.iso gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso > gsutil.iso.log 2>&1
+            gsutil cp $CACHE_DIRECTORY/opnfv.properties gs://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.properties > gsutil.properties.log 2>&1
+            gsutil cp $CACHE_DIRECTORY/opnfv.properties gs://$GS_URL/latest.properties > gsutil.latest.log 2>&1
+
+            echo
+            echo "--------------------------------------------------------"
+            echo "Done!"
+            echo "Artifact is available as http://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso"
+
+- builder:
+    name: 'compass-upload-artifact-internal'
+    builders:
+        - shell: |
+            #!/bin/bash
+            set -o errexit
+            set -o nounset
+            set -o pipefail
+
+            # log info to console
+            echo "Uploading the $INSTALLER artifact. This could take some time..."
+            echo "--------------------------------------------------------"
+            echo
+ 
+            # source the opnfv.properties to get ARTIFACT_VERSION
+            source $CACHE_DIRECTORY/opnfv.properties
+
+            scp $CACHE_DIRECTORY/compass.iso $INTERNAL_REPO_XA/
+            scp $CACHE_DIRECTORY/opnfv.properties $INTERNAL_REPO_XA/
+            scp $CACHE_DIRECTORY/compass.iso $INTERNAL_REPO_XA/opnfv-$OPNFV_ARTIFACT_VERSION.iso
 
             echo
             echo "--------------------------------------------------------"
