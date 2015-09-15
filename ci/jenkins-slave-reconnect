@@ -1,0 +1,39 @@
+#!/bin/bash
+##############################################################################
+# Copyright (c) 2015 Huawei Technologies Co.,Ltd.
+# meimei@huawei.com
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Apache License, Version 2.0
+# which accompanies this distribution, and is available at
+# http://www.apache.org/licenses/LICENSE-2.0#
+##############################################################################
+set -x
+set -o errexit
+set -o nounset
+set -o pipefail
+
+SLAVE_CONF="/etc/default/jenkins-slave"
+if [ -f ${SLAVE_CONF} ]
+then
+    . ${SLAVE_CONF}
+else
+    echo "Error : Configuration file ($SLAVE_CONF) does not exist, details please refer to README."
+    exit
+fi
+
+SLAVE_CONNECTION_INFO=$(echo $(tail -n 1 ${SLAVE_LOG}))
+SLAVE_STATUS=$(service jenkins-slave status|xargs -d"\n")
+RECONNECT_LOG="${JENKINS_SLAVE_ROOTDIR}/slave_reconnection.log"
+DATE=`date`
+if [[ $SLAVE_CONNECTION_INFO =~ "INFO: Connected" ]]&&[[ $SLAVE_STATUS =~ "jenkins slave is running" ]];
+then
+    REPLACE_EXTRA_INFO='jenkins slave service has been connected'
+
+else
+    REPLACE_EXTRA_INFO='jenkins slave connection is abnormal, we will reconnect it: '`service jenkins-slave restart|xargs -d"\n"`
+fi
+
+sed -e "s#REPLACE_DATE#$DATE#g"  \
+    -e "s#REPLACE_SLAVE_STATUS#${SLAVE_STATUS}#g" \
+    -e "s#REPLACE_SLAVE_CONNECTION_INFO#$SLAVE_CONNECTION_INFO#g" \
+    -e "s#REPLACE_EXTRA_INFO#$REPLACE_EXTRA_INFO#g" ./log.tmpl >> $RECONNECT_LOG

@@ -1,0 +1,11 @@
+SLAVENAME=[slave's name]
+TOKEN=[slave's secret token]
+JENKINS_MASTER_URL=https://build.opnfv.org/ci/computer/
+USER="jenkins"
+GROUP="jenkins"
+JENKINS_HOME="/home/${USER}"
+SLAVE_JAR="${JENKINS_HOME}/slave.jar"
+JENKINS_SLAVE_ROOTDIR="${JENKINS_HOME}/jenkins-slave"
+PID_FILE="${JENKINS_SLAVE_ROOTDIR}/slave.pid"
+SLAVE_LOG="${JENKINS_SLAVE_ROOTDIR}/slave.log"
+JAVA_BIN="/usr/bin/java"
