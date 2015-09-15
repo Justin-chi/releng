@@ -242,7 +242,7 @@
 
     project-type: freestyle
 
-    node: build-build
+    node: huawei-build
 
     logrotate:
         daysToKeep: 30
