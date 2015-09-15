@@ -1,0 +1,8 @@
+---
+- name: install git
+  apt: name=git state=present
+ 
+
+- name: generate ha service list
+  shell: echo {{ item }} >> /opt/service
+  with_items: services | union(services_noarch)
