@@ -9,7 +9,7 @@
             installer_type: 'compass'
             installer_ip: '10.1.0.12'
     jobs:
-        - 'genesis-compass-functest-{pod}'
+        - 'compass-functest-{pod}'
         - 'set-functest-env-{pod}'
         - 'clean-functest-env-{pod}'
         - 'functest-openstack-bench-test-{pod}'
@@ -208,7 +208,7 @@
             python $WORKSPACE/testcases/vPing/CI/libraries/vPing.py --debug $WORKSPACE/
 
 - job-template:
-    name: genesis-compass-functest-{pod}
+    name: compass-functest-{pod}
 
     project-type: freestyle
 
