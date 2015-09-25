@@ -1,5 +1,8 @@
-
-#set -xi
+#!/bin/bash
+#set -o errexit
+#set -o nounset
+#set -o pipefail 
+set -x
 
 COMPASS_DIR=`cd ${BASH_SOURCE[0]%/*}/;pwd`
 export COMPASS_DIR
@@ -39,7 +42,7 @@ fi
 
 
 #install git
-ansible -u root web -m ping -i ./hosts 
+ansible -u root ci -m ping -i ./hosts 
 
 #create jenkins
 
