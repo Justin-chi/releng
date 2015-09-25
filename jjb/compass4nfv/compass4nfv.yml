@@ -269,6 +269,7 @@
             branch: 'master'
 
     builders:
+        - 'compass-make-ppa'
         - 'compass-build'
         - 'compass-upload-artifact'
         - 'compass-workspace-cleanup'
@@ -306,6 +307,7 @@
             branch: 'master'
 
     builders:
+        #- 'compass-ci-preclean-workspace'
         - 'compass-download-artifact'
         - 'compass-checkout-corresponding-version'
         - 'compass-deploy-virtual-flavor'
@@ -586,6 +588,12 @@
         - string:
             name: installer_ip
             default: "10.1.0.12"
+        - string:
+            name: PPA_REPO
+            default: "http://58.251.166.184:9999"
+        - string:
+            name: PPA_CACHE
+            default: "$WORKSPACE/work/ppa/"
 
 ########################
 # builder macros
@@ -599,7 +607,25 @@
             #!/bin/bash
             echo "Hello World!"
 
-
+- builder:
+    name: 'compass-make-ppa'
+    builders:
+        - shell: |
+            #!/bin/bash
+            set -x
+            set -o errexit
+            set -o nounset
+            set -o pipefail
+            # make ppa
+            cd $WORKSPACE/
+            ./build/make_repo.sh
+            
+            # calc MD5 of ppa
+            cd $PPA_CACHE
+            for i in `find *.gz *.iso *.img -type f`; do md5="md5sum $i | cut -d' ' -f1"; echo $md5 > $i.md5; done;
+            
+            # upload PPA
+            for i in `find *.* -type f`;do curl -T $i $PPA_REPO; done;
 
 - builder:
     name: 'compass-build'
@@ -609,7 +635,7 @@
             set -o errexit
             set -o nounset
             set -o pipefail
-            set -e            
+            set -x 
 
             # log info to console
             echo "Starting the build of $INSTALLER. This could take some time..."
@@ -624,10 +650,7 @@
             export OPNFV_ARTIFACT_VERSION=$(date -u +"%Y-%m-%d_%H-%M-%S")
 
             # start the build
-            cd $WORKSPACE/
-            ./build/make_repo.sh
-            cp work/repo/*.tar.gz $CACHE_DIRECTORY/
-            
+            echo "if [ -d $PPA_CACHE ]; then `cp $PPA_CACHE/*.tar.gz $PPA_CACHE/*.md5 $CACHE_DIRECTORY/`;fi;"
             ./build.sh  --iso-dir $BUILD_DIRECTORY/ --iso-name compass.iso -c $CACHE_DIRECTORY
             
             # list the build artifacts
@@ -654,7 +677,7 @@
             set -o errexit
             set -o nounset
             set -o pipefail
-            set -e
+            set -x
 
             # log info to console
             echo "Starting the deployment on virtual environment using $INSTALLER. This could take some time..."
@@ -677,7 +700,7 @@
             set -o errexit
             set -o nounset
             set -o pipefail
-            set -e
+            set -x
             # log info to console
             echo "Uploading the $INSTALLER artifact. This could take some time..."
             echo "--------------------------------------------------------"
@@ -703,7 +726,6 @@
             set -o errexit
             set -o nounset
             set -o pipefail
-            set -e
             set -x
             # log info to console
             echo "Downloading the $INSTALLER artifact. This could take some time..."
@@ -739,7 +761,7 @@
             set -o errexit
             set -o nounset
             set -o pipefail
-            set -e
+            set -x
 
             # delete everything that is in $WORKSPACE
             sudo /bin/rm -rf $WORKSPACE
@@ -752,7 +774,7 @@
             set -o errexit
             set -o nounset
             set -o pipefail
-            set -e
+            set -x
 
             cd $WORKSPACE/..
             sudo rm $WORKSPACE -rf
@@ -762,16 +784,21 @@
     name: 'compass-checkout-corresponding-version'
     builders:
         - shell: |
-            set -e
+            #!/bin/bash
+            set -o errexit
+            set -o nounset
+            set -o pipefail            
+            set -x
 
-            cd $OWRKSPACE
+            cd $WORKSPACE
             # git current head
             git rev-parse HEAD
+
             # check if we got the file
-            [[ -f latest.properties ]] || exit 1
+            [[ -f $BUILD_DIRECTORY/latest.properties ]] || exit 1
 
             # source the file so we get OPNFV vars
-            source latest.properties
+            source $BUILD_DIRECTORY/latest.properties
 
             GIT_URL_C=$(git config --get remote.origin.url)
             if [[ $OPNFV_GIT_URL != $GIT_URL_C ]]; then `git reset --hard $OPNFV_GIT_SHA1`; fi;
