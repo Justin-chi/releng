@@ -11,7 +11,7 @@ for i in python-cheetah python-yaml screen; do
     if [[ `dpkg-query -l $i` == 0 ]]; then
         continue
     fi
-    sudo apt-get install -y --force-yes  $i
+    #sudo apt-get install -y --force-yes  $i
 done
 
 screen -ls |grep deploy|awk -F. '{print $1}'|xargs kill -9
@@ -42,7 +42,7 @@ fi
 
 
 #install git
-ansible -u root ci -m ping -i ./hosts 
+ansible-playbook playbook.yml  -i ./hosts 
 
 #create jenkins
 
