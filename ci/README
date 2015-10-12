@@ -1,0 +1,32 @@
+##############################################################################
+# Copyright (c) 2015 Huawei Technologies Co.,Ltd.
+# meimei@huawei.com
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Apache License, Version 2.0
+# which accompanies this distribution, and is available at
+# http://www.apache.org/licenses/LICENSE-2.0#
+##############################################################################
+Before use this script please make sure things below you have done:
+1.Install JDK on server
+2.Create local user on server: jenkins
+3.Your slave has been configured in OPNFV Jenkins master
+4.Create slave's local workspace that has been configured in jenkins master
+5.Download slave.jar and put it into the folder of /home/jenkins/
+6.Obtain slave's token from Linux Foundation Helpdesk
+Consult wiki : https://wiki.opnfv.org/wiki/jenkins#how_to_connect_servers_from_labs_to_opnfv_jenkins
+
+First, follow steps below to launch your slave to OPNFV Jenkins:
+1. cp jenkins-slave.init /etc/init.d/jenkins-slave
+2. chmod +x /etc/init.d/jenkins-slave
+3. Define $SLAVENAME&$TOKEN in config file(jenkins-slave)
+4. cp jenkins-slave /etc/default/jenkins-slave
+5. service jenkins-slave start
+6. run command"service jenkins-slave status" to check the process is running, see the log(/home/jenkins/jenkins-slave/slave.log) to confirm the connection to OPNFV Jenkins.
+
+Then, follow steps below to launch your slave monitor program(use cron to schedule monitor job):
+1. cp jenkins-slave-reconnect to your workspace, eg./home/jenkins
+2. run command"crontab -e", edit configuration file for cron, contains the following lines:
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+# Run once an hour at the beginning of the hour
+0 * * * * /home/jenkins/jenkins-slave-reconnect
+

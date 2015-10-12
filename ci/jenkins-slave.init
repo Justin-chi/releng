@@ -1,0 +1,133 @@
+#!/bin/bash
+##############################################################################
+# Copyright (c) 2015 Huawei Technologies Co.,Ltd.
+# meimei@huawei.com
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Apache License, Version 2.0
+# which accompanies this distribution, and is available at
+# http://www.apache.org/licenses/LICENSE-2.0#
+##############################################################################
+set -o errexit
+set -o nounset
+set -o pipefail
+SLAVE_CONF="/etc/default/jenkins-slave"
+
+if [ -f ${SLAVE_CONF} ]
+then
+    . ${SLAVE_CONF}
+else
+    echo "Error : Configuration file ($SLAVE_CONF) does not exist, details please refer to README."
+    exit
+fi
+
+if [ -z "${SLAVENAME}" ] || [ -z "${TOKEN}" ]
+then
+    echo "Error : Please define SLAVENAME and TOKEN values in the Configuration file ($SLAVE_CONF),  details please refer to README."
+    exit
+fi
+
+SLAVE_JNLP="-jnlpUrl ${JENKINS_MASTER_URL}/${SLAVENAME}/slave-agent.jnlp"
+JAVA_BIN="/usr/bin/java"
+
+if [ ! -f ${SLAVE_JAR} ]
+then
+    echo "Error : ${SLAVE_JAR} dosenot exist, details please refer to README."
+    exit
+fi
+
+[ -e ${JENKINS_SLAVE_ROOTDIR} ] || { mkdir ${JENKINS_SLAVE_ROOTDIR}; chown ${USER}:${GROUP} ${JENKINS_SLAVE_ROOTDIR};};
+if [ ! -d ${JENKINS_SLAVE_ROOTDIR} ]
+then
+    echo "Error : ${JENKINS_SLAVE_ROOTDIR} can not be created! Maybe there is a file with the same name of 'jenkins-slave'."
+    exit
+fi
+
+get_process_id_of_slave()
+{
+    set +e
+    pid=`ps -ef | grep "${SLAVE_JAR}" | grep "${JENKINS_MASTER_URL}" | grep -v 'grep' |  awk '{print $2}'`
+    set -e
+    echo $pid
+}
+
+usage ()
+{
+cat<<EOF
+Usage: jenkins-slave {start|stop|restart}
+EOF
+}
+
+start()
+{
+    echo "Starting jenkins slave(${SLAVENAME})"
+    if ! start-stop-daemon --start -m -b -c ${USER} -p ${PID_FILE} \
+        --startas /bin/bash -- -c \
+        "exec ${JAVA_BIN}  -jar ${SLAVE_JAR} ${SLAVE_JNLP} -secret ${TOKEN} >>${SLAVE_LOG} 2>&1"
+    then
+        echo "Start jenkins slave failed!"
+    else
+        echo "DONE."
+    fi
+}
+
+stop()
+{
+    echo "Stopping jenkins slave(${SLAVENAME})"
+    if ! start-stop-daemon --stop -p ${PID_FILE}
+    then
+        echo "Stop jenkins slave failed!"
+        pid=`get_process_id_of_slave`
+        if [ ! -z $pid ]
+        then
+            kill -9 $pid
+            echo "force kill the process(pid=$pid) of jenkins slave!"
+        fi
+    fi
+    rm -f ${PID_FILE}
+    echo "DONE."
+}
+
+
+status()
+{
+    pid=`get_process_id_of_slave`
+    echo "get process id : $pid"
+    if [ -z $pid ]
+    then
+        echo "jenkins slave is not running!"
+    else
+        echo "jenkins slave is running, pid is $pid"
+    fi
+}
+
+if [ $# -gt 0 ]
+then
+    OPTION=$1
+else
+    echo "Please input your argument!"
+    usage
+    exit 1
+fi
+
+case "$OPTION" in
+    start)
+        start
+    ;;
+    stop)
+        stop
+    ;;
+    restart)
+        stop
+        sleep 2
+        start
+    ;;
+    status)
+        status
+    ;;
+    *)
+        echo "Error: $OPTION is not a valid argument"
+        usage
+        exit 1
+    ;;
+esac
+
