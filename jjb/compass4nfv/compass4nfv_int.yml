@@ -30,7 +30,7 @@
         - cluster:
             conf: 'virtual_cluster'
             node: 'huawei-build'
-        - cluster_odl:
+        - cluster-odl:
             conf: 'virtual_cluster'
             node: 'huawei-build'
 
@@ -702,6 +702,8 @@
             curl -T $BUILD_DIRECTORY/opnfv.properties http://$GS_URL/latest.properties
             curl -T $BUILD_DIRECTORY/opnfv.properties http://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.properties
             curl -T $BUILD_DIRECTORY/compass.iso http://$GS_URL/opnfv-$OPNFV_ARTIFACT_VERSION.iso
+            curl -T $BUILD_DIRECTORY/compass.iso http://58.251.166.184:9999/compass.iso
+            curl -T $BUILD_DIRECTORY/opnfv.properties http://58.251.166.184:9999/latest.properties
 
             echo
             echo "--------------------------------------------------------"
@@ -797,4 +799,4 @@
     builders:
         - shell: |
             ssh_options="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-            sshpass -p root scp 2>/dev/null $ssh_options root@${installer_ip}:/var/ansible/run/openstack_juno-opnfv2/ansible.log ./  &> /dev/null
+            sshpass -p root scp 2>/dev/null $ssh_options root@${installer_ip}:/var/ansible/run/openstack_juno-opnfv2/ansible.log $WORKSPACE/  &> /dev/null
