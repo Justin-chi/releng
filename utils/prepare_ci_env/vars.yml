@@ -1,0 +1,7 @@
+---
+user: "jenkins"
+token: {
+       compass-build-deploy-12712: a706def119dd2817d1331f62ec5bb17bfe61e06cae9f13a278ead7542eec0fc6,
+       compass-build-deploy-12713: 72232d4214e119ae0e86c19e2bda5e293418c91064c86ba59d59106d02136291,
+       compass-build-deploy-12714: 75b60b1c1f26f4583ad4d8f83bf2eb80413bd31f61775558436fdbebba65bc7a
+      }

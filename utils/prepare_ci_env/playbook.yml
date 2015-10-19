@@ -1,0 +1,74 @@
+---
+- name: create slave
+  hosts: ci
+  user: root
+  gather_facts: false
+  
+#  vars:
+#  - user: "jenkins"
+#  - token: {
+#         compass-build-deploy-12712: a706def119dd2817d1331f62ec5bb17bfe61e06cae9f13a278ead7542eec0fc6,
+#         compass-build-deploy-12713: 72232d4214e119ae0e86c19e2bda5e293418c91064c86ba59d59106d02136291,
+#         compass-build-deploy-12714: 75b60b1c1f26f4583ad4d8f83bf2eb80413bd31f61775558436fdbebba65bc7a
+#      }
+  
+  tasks:
+  - include_vars: "vars.yml"
+
+  - name: create {{ user }} on slave
+    user: name="{{ user }}"
+
+  - name: update apt/sources.list
+    copy: src=sources.list dest=/etc/apt/sources.list
+
+  - name: updates a server
+    apt: update_cache=yes
+
+  - name: upgrade a server
+    apt: upgrade=full
+
+  - name: install java
+    apt: name=openjdk-7-jdk state=present
+
+  - name: install git 
+    apt: name=git state=present
+
+  - name: git clone releng
+    git: repo=https://github.com/Justin-chi/releng dest=/opt/releng
+  
+  - name: mv jenkins-slave to /etc/init.d/
+    shell: cp /opt/releng/ci/jenkins-slave /etc/default/jenkins-slave
+
+  - name: update slave name
+    lineinfile: dest=/etc/default/jenkins-slave state=present regexp="SLAVENAME=*" line="SLAVENAME={{ inventory_hostname }}"
+
+  - name: update token
+    lineinfile: dest=/etc/default/jenkins-slave state=present regexp="TOKEN=*" line="TOKEN={{ token[inventory_hostname] }}"
+
+  - name: update master url
+    lineinfile: dest=/etc/default/jenkins-slave state=present regexp="JENKINS_MASTER_URL=*" line="JENKINS_MASTER_URL=http://192.168.125.53:8080/computer/"  
+
+  - name: update sudoers
+    lineinfile: 'dest=/etc/sudoers state=present regexp="jenkins*" line="jenkins ALL=(ALL)NOPASSWD: ALL"'
+
+  - name: mv jenkins-slave.init to /etc/default/
+    shell: cp /opt/releng/ci/jenkins-slave.init /etc/init.d/jenkins-slave
+  
+  - name: copy /home/jenkins/jenkins-slave-reconnect
+    shell: cp /opt/releng/ci/jenkins-slave-reconnect /home/jenkins/jenkins-slave-reconnect
+  
+  - name: mod token and name[slave's name]&[slave's secret token]
+    shell: echo "hello world!" > /home/jenkins/helloworld.txt
+  
+  - name: wget slave.jar
+    shell: wget https://build.opnfv.org/ci/jnlpJars/slave.jar -P /home/jenkins/
+  
+  - name: config cron
+    cron: name="recheck slave-connection" minute="30" job="/home/jenkins/jenkins-slave-reconnect" 
+  
+  - name: service jenkins start
+    shell: service jenkins-slave restart
+  
+  - name: install sshpass
+    apt: name=sshpass state=present
+  
