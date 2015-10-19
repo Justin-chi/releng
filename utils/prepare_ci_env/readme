@@ -1,0 +1,13 @@
+config  authority first:
+1 ssh-keygen
+2 add public keys to the ansible server's authorized_keys
+server:192.168.172.12
+client:192.168.127.13 
+run on client:
+scp /root/.ssh/id_rsa.pub 192.168.127.13:/root/.ssh/12712.pub
+ssh_options="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+sshpass -p root ssh $ssh_options root@192.168.127.13 "cat ~/.ssh/12712.pub >> ~/.ssh/authorized_keys"
+
+if I am server/client:
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+

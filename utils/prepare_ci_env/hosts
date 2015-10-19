@@ -1,8 +1,4 @@
 [ci]
-compass-build-deploy-12712 ansible_ssh_host=192.168.127.12
-compass-build-deploy-12713 ansible_ssh_host=192.168.127.13
-compass-build-deploy-12714 ansible_ssh_host=192.168.127.14
-[slave]
-compass-build-deploy-12713 ansible_ssh_host=192.168.127.13
+huawei-build-1 ansible_ssh_host=192.168.50.21
 
 

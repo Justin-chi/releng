@@ -46,7 +46,7 @@
     lineinfile: dest=/etc/default/jenkins-slave state=present regexp="TOKEN=*" line="TOKEN={{ token[inventory_hostname] }}"
 
   - name: update master url
-    lineinfile: dest=/etc/default/jenkins-slave state=present regexp="JENKINS_MASTER_URL=*" line="JENKINS_MASTER_URL=http://192.168.125.53:8080/computer/"  
+    lineinfile: dest=/etc/default/jenkins-slave state=present regexp="JENKINS_MASTER_URL=*" line="JENKINS_MASTER_URL={{ jenkins_master_url }}"  
 
   - name: update sudoers
     lineinfile: 'dest=/etc/sudoers state=present regexp="jenkins*" line="jenkins ALL=(ALL)NOPASSWD: ALL"'
