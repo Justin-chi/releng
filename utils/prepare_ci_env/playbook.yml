@@ -24,14 +24,15 @@
   - name: updates a server
     apt: update_cache=yes
 
-  - name: upgrade a server
-    apt: upgrade=full
 
   - name: install java
     apt: name=openjdk-7-jdk state=present
 
   - name: install git 
     apt: name=git state=present
+
+  - name: install curl 
+    apt: name=curl state=present
 
   - name: git clone releng
     git: repo=https://github.com/Justin-chi/releng dest=/opt/releng

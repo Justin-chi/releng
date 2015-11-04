@@ -3,5 +3,5 @@ user: "jenkins"
 jenkins_master_url: "https://build.opnfv.org/ci/computer/"
 #jenkins_master_url: "http://192.168.125.53:8080/computer/"
 token: {
-       huawei-build-1: 9c46e6520a1d3eea1d634f812840d69214a2083b2e2e914a6e77e7b1caabcd82
+       huawei-US-build-1: 9c46e6520a1d3eea1d634f812840d69214a2083b2e2e914a6e77e7b1caabcd82
       }
