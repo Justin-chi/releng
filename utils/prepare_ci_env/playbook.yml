@@ -66,4 +66,7 @@
   
   - name: install sshpass
     apt: name=sshpass state=present
-  
+
+  - name: install docker
+    shell: wget -qO- https://get.docker.com/ | sh
+
