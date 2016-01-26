@@ -1,3 +1,4 @@
 [ci]
-huawei-us-deploy-vm-1 ansible_ssh_host=192.168.105.2
-huawei-us-deploy-vm-2 ansible_ssh_host=192.168.106.2
+huawei-us-deploy-bare-1 ansible_ssh_host=192.168.10.6
+#huawei-us-deploy-vm-1 ansible_ssh_host=192.168.107.2
+#huawei-us-deploy-vm-2 ansible_ssh_host=192.168.106.2
