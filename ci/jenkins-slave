@@ -9,3 +9,5 @@ JENKINS_SLAVE_ROOTDIR="${JENKINS_HOME}/jenkins-slave"
 PID_FILE="${JENKINS_SLAVE_ROOTDIR}/slave.pid"
 SLAVE_LOG="${JENKINS_SLAVE_ROOTDIR}/slave.log"
 JAVA_BIN="/usr/bin/java"
+
+ulimit -n 65535
