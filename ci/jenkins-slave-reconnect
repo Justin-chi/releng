@@ -12,6 +12,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
 SLAVE_CONF="/etc/default/jenkins-slave"
 if [ -f ${SLAVE_CONF} ]
 then
