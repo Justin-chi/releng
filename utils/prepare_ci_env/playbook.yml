@@ -54,7 +54,7 @@
     shell: cp /opt/releng/ci/jenkins-slave-reconnect /home/jenkins/jenkins-slave-reconnect
   
   - name: copy /home/jenkins/jenkins-slave/log.tmpl
-    shell: cp /opt/releng/ci/log /home/jenkins/jenkins-slave/log.tmpl
+    shell: mkdir -p /home/jenkins/jenkins-slave; cp /opt/releng/ci/log.tmpl /home/jenkins/jenkins-slave/log.tmpl
 
   - name: mod token and name[slave's name]&[slave's secret token]
     shell: echo "hello world!" > /home/jenkins/helloworld.txt
