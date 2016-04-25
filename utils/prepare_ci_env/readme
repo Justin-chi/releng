@@ -8,5 +8,8 @@ just few steps below you need to run on your jumphost, that can access all of yo
 3.modify hosts file to add the server you want to install
 4.ansible-playbook -i hosts playbook.yml
 
+if I am server/client:
+  cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
 if there are more than one Jenkins-slave node, excute 1-3 steps repeatly for each node.
 
